@@ -13,11 +13,12 @@ import {
   Line, RadarChart, Radar, PolarGrid, PolarAngleAxis,
 } from 'recharts';
 import { getReportsSummary } from '../../../api/reports';
+import PageWrapper from '../../../components/common/PageWrapper';
 
-const COLORS = ['#1A237E','#C62828','#2E7D32','#E65100','#4A148C','#00838F'];
-const GRADE_COLOR = {S:'#1A237E',A:'#2E7D32',B:'#00838F',C:'#F57F17',D:'#E65100',F:'#C62828'};
+const COLORS = ['#4F46E5','#DC2626','#059669','#EA580C','#7C3AED','#0891B2'];
+const GRADE_COLOR = {S:'#4F46E5',A:'#059669',B:'#0891B2',C:'#D97706',D:'#EA580C',F:'#DC2626'};
 
-const Stat = ({ icon, label, value, color = '#1A237E', sub }) => (
+const Stat = ({ icon, label, value, color = '#4F46E5', sub }) => (
   <Card sx={{ height:'100%' }}>
     <CardContent sx={{ display:'flex', alignItems:'center', gap:2 }}>
       <Avatar sx={{ bgcolor:`${color}18`, color, width:52, height:52 }}>{icon}</Avatar>
@@ -84,7 +85,7 @@ export default function ReportsHub() {
   ];
 
   return (
-    <Box sx={{ p:3 }}>
+    <PageWrapper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
           <Typography variant="h4" fontWeight={800}>Reports & Analytics</Typography>
@@ -95,37 +96,37 @@ export default function ReportsHub() {
 
       {/* ── KPI Row ────────────────────────────── */}
       <Grid container spacing={2} mb={3}>
-        <Grid item xs={6} sm={4} md={2}>
-          <Stat icon={<People/>}       label="Total Students"    value={t.students}         color="#1A237E" sub={`${t.activeStudents} active`} />
+        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+          <Stat icon={<People/>}       label="Total Students"    value={t.students}         color="#4F46E5" sub={`${t.activeStudents} active`} />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Stat icon={<School/>}       label="Total Staff"       value={t.staff}            color="#2E7D32" sub={`${t.depts} departments`} />
+        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+          <Stat icon={<School/>}       label="Total Staff"       value={t.staff}            color="#059669" sub={`${t.depts} departments`} />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Stat icon={<People/>}       label="Alumni"            value={t.alumniStudents}   color="#00838F" />
+        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+          <Stat icon={<People/>}       label="Alumni"            value={t.alumniStudents}   color="#0891B2" />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Stat icon={<MenuBook/>}     label="Notes Uploaded"    value={t.notes}            color="#6A1B9A" />
+        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+          <Stat icon={<MenuBook/>}     label="Notes Uploaded"    value={t.notes}            color="#7C3AED" />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Stat icon={<EventNote/>}    label="Events"            value={t.events}           color="#E65100" />
+        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
+          <Stat icon={<EventNote/>}    label="Events"            value={t.events}           color="#EA580C" />
         </Grid>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid size={{ xs: 6, sm: 4, md: 2 }}>
           <Stat icon={<ReportProblem/>} label="Complaints" value={t.complaints}
-            color="#C62828" sub={`${t.complaintsPending} pending`} />
+            color="#DC2626" sub={`${t.complaintsPending} pending`} />
         </Grid>
       </Grid>
 
       {/* ── Charts Row 1 ───────────────────────── */}
       <Grid container spacing={3} mb={3}>
         {/* Student by Batch */}
-        <Grid item xs={12} md={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight={700} mb={2}>📊 Students by Batch Year</Typography>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={batchChartData} margin={{top:0,right:10,left:-10,bottom:0}}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis dataKey="batch" tick={{fontSize:12}} />
                   <YAxis tick={{fontSize:12}} />
                   <RTooltip />
@@ -139,7 +140,7 @@ export default function ReportsHub() {
         </Grid>
 
         {/* Avg Attendance */}
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight={700} mb={2}>📋 Attendance Overview (by Batch/Sem)</Typography>
@@ -147,13 +148,13 @@ export default function ReportsHub() {
                 ? <Typography color="text.secondary" textAlign="center" py={4}>No attendance data found</Typography>
                 : <ResponsiveContainer width="100%" height={220}>
                     <BarChart data={attChartData} margin={{top:0,right:10,left:-10,bottom:0}}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                       <XAxis dataKey="label" tick={{fontSize:10}} />
                       <YAxis tick={{fontSize:12}} domain={[0,100]} />
                       <RTooltip />
                       <Legend wrapperStyle={{fontSize:12}} />
-                      <Bar dataKey="avg" name="Avg % Present" fill="#1A237E" radius={[4,4,0,0]} />
-                      <Bar dataKey="defaulters" name="Defaulters" fill="#C62828" radius={[4,4,0,0]} />
+                      <Bar dataKey="avg" name="Avg % Present" fill="#4F46E5" radius={[4,4,0,0]} />
+                      <Bar dataKey="defaulters" name="Defaulters" fill="#DC2626" radius={[4,4,0,0]} />
                     </BarChart>
                   </ResponsiveContainer>
               }
@@ -165,7 +166,7 @@ export default function ReportsHub() {
       {/* ── Charts Row 2 ─────────────────────── */}
       <Grid container spacing={3} mb={3}>
         {/* Complaint pie */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight={700} mb={2}>⚠️ Complaints by Type</Typography>
@@ -202,7 +203,7 @@ export default function ReportsHub() {
         </Grid>
 
         {/* Staff by dept */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight={700} mb={2}>👥 Staff by Department</Typography>
@@ -212,7 +213,7 @@ export default function ReportsHub() {
                   <XAxis type="number" tick={{fontSize:11}} />
                   <YAxis dataKey="dept" type="category" tick={{fontSize:9}} width={80} />
                   <RTooltip />
-                  <Bar dataKey="total" name="Staff" fill="#2E7D32" radius={[0,4,4,0]} />
+                  <Bar dataKey="total" name="Staff" fill="#059669" radius={[0,4,4,0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -220,7 +221,7 @@ export default function ReportsHub() {
         </Grid>
 
         {/* Marks radar */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight={700} mb={2}>📝 Avg Marks Overview</Typography>
@@ -228,7 +229,7 @@ export default function ReportsHub() {
                 <RadarChart data={marksRadar}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="subject" tick={{fontSize:12}} />
-                  <Radar name="Avg Mark" dataKey="avg" fill="#1A237E" fillOpacity={0.3} stroke="#1A237E" strokeWidth={2} />
+                  <Radar name="Avg Mark" dataKey="avg" fill="#4F46E5" fillOpacity={0.3} stroke="#4F46E5" strokeWidth={2} />
                   <RTooltip />
                 </RadarChart>
               </ResponsiveContainer>
@@ -236,7 +237,7 @@ export default function ReportsHub() {
               <Box display="flex" justifyContent="space-around">
                 {marksRadar.map(m => (
                   <Box key={m.subject} textAlign="center">
-                    <Typography variant="h5" fontWeight={800} color="#1A237E">{m.avg || '—'}</Typography>
+                    <Typography variant="h5" fontWeight={800} color="#4F46E5">{m.avg || '—'}</Typography>
                     <Typography variant="caption" color="text.secondary">{m.subject} avg</Typography>
                     <Typography variant="caption" display="block" color="text.secondary">/{m.max}</Typography>
                   </Box>
@@ -254,13 +255,13 @@ export default function ReportsHub() {
             <Typography variant="h6" fontWeight={700} mb={2}>📔 Most Active Work Diary — Top 10 Staff</Typography>
             <Grid container spacing={2}>
               {data.diary.map((d, i) => (
-                <Grid item xs={6} sm={4} md={2.4} key={d.SID}>
+                <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={d.SID}>
                   <Box display="flex" alignItems="center" gap={1} p={1.5}
-                    sx={{bgcolor:'#F8F9FF',borderRadius:2}}>
+                    sx={{bgcolor:'#F9FAFB',borderRadius:2}}>
                     <Avatar sx={{
                       width:32, height:32, fontSize:13, fontWeight:800,
-                      bgcolor: i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'#E8EAF6',
-                      color: i<3?'#333':'#1A237E',
+                      bgcolor: i===0?'#FFD700':i===1?'#C0C0C0':i===2?'#CD7F32':'#EEF2FF',
+                      color: i<3?'#333':'#4F46E5',
                     }}>
                       {i+1}
                     </Avatar>
@@ -275,6 +276,6 @@ export default function ReportsHub() {
           </CardContent>
         </Card>
       )}
-    </Box>
+    </PageWrapper>
   );
 }

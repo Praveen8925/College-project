@@ -16,7 +16,7 @@ $student = $safeRow('SELECT * FROM student WHERE RegNo=?', [$regno]);
 if (!$student) jsonResponse(['success'=>false,'message'=>'Student not found.'], 404);
 
 $batch = (int)$student['Batch'];
-$sem   = (int)$student['sem'];
+$sem   = (int)($student['sem'] ?? 1); // Default to 1 if sem field is missing
 
 // Resolve attendance table
 function resolveAttTable(PDO $db, int $batch): ?string {

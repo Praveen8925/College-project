@@ -12,7 +12,7 @@ if ($method === 'GET') {
     $dept   = trim($_GET['dept']   ?? '');
     $batch  = trim($_GET['batch']  ?? '');
 
-    $sql    = 'SELECT * FROM student WHERE 1=1';
+    $sql    = 'SELECT RegNo, Name, Batch, Department, sem, Gender, DOB, Address, Mobileno, `Email-id` AS Emailid, Password, status FROM student WHERE 1=1';
     $params = [];
 
     if ($search) {

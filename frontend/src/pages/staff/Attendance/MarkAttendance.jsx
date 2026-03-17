@@ -7,8 +7,11 @@ import {
   Paper, LinearProgress, Tooltip, IconButton,
 } from '@mui/material';
 import { CheckCircle, Cancel, Save, Search, People } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 import { getAttendanceStudents, saveAttendance } from '../../../api/attendance';
 import { useAuth } from '../../../context/AuthContext';
+import PageWrapper from '../../../components/common/PageWrapper';
+import SectionCard from '../../../components/common/SectionCard';
 
 const SEMS  = [1,2,3,4,5,6];
 
@@ -68,21 +71,21 @@ export default function MarkAttendance() {
   const absent  = students.length - present;
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>Mark Attendance</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>Mark Attendance</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>Select a class to record today's attendance</Typography>
 
-      {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
       {/* Filter Bar */}
-      <Card sx={{ mb:3 }}>
+      <Card sx={{ mb:3, borderLeft: '4px solid #4F46E5' }}>
         <CardContent>
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <TextField id="att-batch" fullWidth label="Batch Year *" type="number" value={batch}
                 onChange={e => setBatch(e.target.value)} placeholder="e.g. 2022" />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <FormControl fullWidth>
                 <InputLabel>Semester *</InputLabel>
                 <Select value={sem} label="Semester *" id="att-sem" onChange={e => setSem(e.target.value)}>
@@ -90,11 +93,11 @@ export default function MarkAttendance() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <TextField id="att-date" fullWidth label="Date" type="date" value={date}
                 onChange={e => setDate(e.target.value)} InputLabelProps={{ shrink:true }} />
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <Button id="fetch-students-btn" fullWidth variant="contained" size="large"
                 onClick={handleFetch} disabled={loading} startIcon={loading ? <CircularProgress size={18}/> : <Search />}>
                 Load Students
@@ -110,9 +113,9 @@ export default function MarkAttendance() {
           {/* Summary + Controls */}
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} flexWrap="wrap" gap={1}>
             <Box display="flex" gap={2}>
-              <Chip icon={<CheckCircle />} label={`Present: ${present}`} color="success" variant="filled" />
-              <Chip icon={<Cancel />}      label={`Absent: ${absent}`}   color="error"   variant="filled" />
-              <Chip icon={<People />}      label={`Total: ${students.length}`} color="primary" variant="outlined" />
+              <Chip icon={<CheckCircle />} label={`Present: ${present}`} sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 600 }} />
+              <Chip icon={<Cancel />} label={`Absent: ${absent}`} sx={{ bgcolor: '#FEF2F2', color: '#DC2626', fontWeight: 600 }} />
+              <Chip icon={<People />} label={`Total: ${students.length}`} sx={{ bgcolor: '#EEF2FF', color: '#4F46E5', fontWeight: 600 }} />
             </Box>
             <Box display="flex" gap={1}>
               <Button id="mark-all-present" size="small" variant="outlined" color="success" onClick={() => toggleAll('P')}>All Present</Button>
@@ -124,10 +127,10 @@ export default function MarkAttendance() {
             </Box>
           </Box>
 
-          <TableContainer component={Paper} sx={{ borderRadius:2, boxShadow:'0 2px 12px rgba(0,0,0,0.07)' }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor:'#F4F6F8' }}>
+                <TableRow sx={{ bgcolor:'#F9FAFB' }}>
                   <TableCell sx={{ fontWeight:700 }}>#</TableCell>
                   <TableCell sx={{ fontWeight:700 }}>Reg. No.</TableCell>
                   <TableCell sx={{ fontWeight:700 }}>Name</TableCell>
@@ -138,17 +141,19 @@ export default function MarkAttendance() {
               </TableHead>
               <TableBody>
                 {students.map((s, i) => (
-                  <TableRow key={s.Regno} hover sx={{ bgcolor: marks[s.Regno]==='A' ? '#FFF3F3' : 'inherit' }}>
+                  <TableRow key={s.Regno} hover sx={{ bgcolor: marks[s.Regno]==='A' ? '#FEF2F2' : 'inherit' }}>
                     <TableCell>{i+1}</TableCell>
                     <TableCell><b>{s.Regno}</b></TableCell>
                     <TableCell>{s.Name}</TableCell>
-                    <TableCell><Chip label={s.Dept} size="small" variant="outlined" /></TableCell>
+                    <TableCell><Chip label={s.Dept} size="small" sx={{ bgcolor: '#F3F4F6', fontWeight: 500 }} /></TableCell>
                     <TableCell>
                       <Box display="flex" alignItems="center" gap={1}>
                         <LinearProgress variant="determinate" value={s.pct}
-                          color={s.pct < 75 ? 'error' : 'success'}
-                          sx={{ flex:1, height:6, borderRadius:3 }} />
-                        <Typography variant="caption" fontWeight={600} color={s.pct < 75 ? 'error.main' : 'success.main'}>
+                          sx={{ 
+                            flex:1, height:6, borderRadius:3, bgcolor: '#E5E7EB',
+                            '& .MuiLinearProgress-bar': { bgcolor: s.pct < 75 ? '#EF4444' : '#10B981' }
+                          }} />
+                        <Typography variant="caption" fontWeight={600} color={s.pct < 75 ? '#EF4444' : '#10B981'}>
                           {s.pct}%
                         </Typography>
                       </Box>
@@ -161,9 +166,9 @@ export default function MarkAttendance() {
                         size="small"
                       >
                         <ToggleButton value="P" id={`att-p-${s.Regno}`}
-                          sx={{ px:2, '&.Mui-selected':{ bgcolor:'#E8F5E9', color:'#2E7D32', borderColor:'#2E7D32' } }}>P</ToggleButton>
+                          sx={{ px:2, '&.Mui-selected':{ bgcolor:'#ECFDF5', color:'#059669', borderColor:'#059669' } }}>P</ToggleButton>
                         <ToggleButton value="A" id={`att-a-${s.Regno}`}
-                          sx={{ px:2, '&.Mui-selected':{ bgcolor:'#FFEBEE', color:'#C62828', borderColor:'#C62828' } }}>A</ToggleButton>
+                          sx={{ px:2, '&.Mui-selected':{ bgcolor:'#FEF2F2', color:'#DC2626', borderColor:'#DC2626' } }}>A</ToggleButton>
                       </ToggleButtonGroup>
                     </TableCell>
                   </TableRow>
@@ -175,12 +180,12 @@ export default function MarkAttendance() {
       )}
 
       {fetched && students.length === 0 && (
-        <Alert severity="info">No students found for Batch {batch}, Semester {sem}. Add students via Admin panel.</Alert>
+        <Alert severity="info" sx={{ borderRadius: 2 }}>No students found for Batch {batch}, Semester {sem}. Add students via Admin panel.</Alert>
       )}
 
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

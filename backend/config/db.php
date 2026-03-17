@@ -1,8 +1,20 @@
 <?php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'collegedetails');
-define('DB_USER', 'root');
-define('DB_PASS', '');  // WAMP default — change if you set a password
+// Auto-detect environment and use appropriate database configuration
+
+// Check if running in Docker (environment variables are set)
+if (isset($_ENV['DB_HOST']) || getenv('DB_HOST')) {
+    // Docker environment
+    define('DB_HOST', $_ENV['DB_HOST'] ?? getenv('DB_HOST') ?? 'mysql');
+    define('DB_NAME', $_ENV['DB_NAME'] ?? getenv('DB_NAME') ?? 'collegedetails');
+    define('DB_USER', $_ENV['DB_USER'] ?? getenv('DB_USER') ?? 'college_user');
+    define('DB_PASS', $_ENV['DB_PASS'] ?? getenv('DB_PASS') ?? 'college_pass');
+} else {
+    // Local WAMP/XAMPP environment
+    define('DB_HOST', 'localhost');
+    define('DB_NAME', 'collegedetails');
+    define('DB_USER', 'root');
+    define('DB_PASS', '');  // WAMP default — change if you set a password
+}
 
 function getDB(): PDO {
     static $pdo = null;

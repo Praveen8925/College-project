@@ -1,0 +1,30 @@
+# Node modules and build files
+frontend/node_modules
+frontend/dist
+frontend/.vite
+frontend/.env.local
+
+# Development files
+.git
+.gitignore
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Temporary files
+backend/check_*.php
+backend/debug_*.php
+backend/test*.php
+*.tmp
+
+# WAMP specific
+mysql_data/

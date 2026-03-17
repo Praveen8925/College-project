@@ -11,10 +11,14 @@ if (!$id) jsonResponse(['success'=>false,'message'=>'Student ID required.'], 400
 
 // ── GET ─────────────────────────────────────────────────────────────
 if ($method === 'GET') {
-    $stmt = $db->prepare('SELECT * FROM student WHERE RegNo = ?');
+    $stmt = $db->prepare('SELECT RegNo, Name, Batch, Department, sem, Gender, DOB, Address, Mobileno, `Email-id` AS Emailid, Password, status FROM student WHERE RegNo = ?');
     $stmt->execute([$id]);
     $student = $stmt->fetch();
     if (!$student) jsonResponse(['success'=>false,'message'=>'Student not found.'], 404);
+    // Fetch personal details
+    $personal = $db->prepare('SELECT * FROM studentpersonal WHERE Regno = ?');
+    $personal->execute([$id]);
+    $student['personal'] = $personal->fetch() ?: null;
     jsonResponse(['success'=>true,'data'=>$student]);
 }
 

@@ -4,17 +4,18 @@ import { useAuth } from '../context/AuthContext';
 import {
   Box, Card, CardContent, TextField, Button, Typography,
   ToggleButton, ToggleButtonGroup, InputAdornment, IconButton,
-  Alert, CircularProgress, Divider, Avatar,
+  Alert, CircularProgress, Avatar,
 } from '@mui/material';
 import {
   School, Person, AdminPanelSettings, Groups,
   Visibility, VisibilityOff, Lock, AccountCircle,
 } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 
 const ROLES = [
-  { value: 'admin',   label: 'Admin',   icon: <AdminPanelSettings />, color: '#1A237E' },
-  { value: 'staff',   label: 'Staff',   icon: <Groups />,             color: '#1565C0' },
-  { value: 'student', label: 'Student', icon: <Person />,             color: '#00695C' },
+  { value: 'admin',   label: 'Admin',   icon: <AdminPanelSettings />, color: '#4F46E5' },
+  { value: 'staff',   label: 'Staff',   icon: <Groups />,             color: '#3B82F6' },
+  { value: 'student', label: 'Student', icon: <Person />,             color: '#10B981' },
 ];
 
 const ROLE_REDIRECT = {
@@ -55,79 +56,87 @@ export default function Login() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #1A237E 0%, #283593 40%, #0D47A1 70%, #1565C0 100%)',
+        background: '#F9FAFB',
         position: 'relative',
         overflow: 'hidden',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          width: 500,
-          height: 500,
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.04)',
-          top: -150,
-          right: -100,
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          width: 350,
-          height: 350,
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.04)',
-          bottom: -100,
-          left: -80,
-        },
       }}
     >
+      {/* Background decorations */}
+      <Box
+        sx={{
+          position: 'absolute',
+          width: 600,
+          height: 600,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)',
+          top: -200,
+          right: -200,
+        }}
+      />
+      <Box
+        sx={{
+          position: 'absolute',
+          width: 400,
+          height: 400,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)',
+          bottom: -150,
+          left: -150,
+        }}
+      />
+
       <Card
+        component={motion.div}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
         sx={{
           width: '100%',
-          maxWidth: 460,
+          maxWidth: 420,
           mx: 2,
-          borderRadius: 4,
-          boxShadow: '0 24px 80px rgba(0,0,0,0.35)',
-          overflow: 'visible',
+          borderRadius: 3,
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+          border: '1px solid #E5E7EB',
+          overflow: 'hidden',
           position: 'relative',
           zIndex: 1,
         }}
       >
-        {/* Top gradient header */}
-        <Box
-          sx={{
-            background: `linear-gradient(135deg, ${activeRole.color} 0%, #0D47A1 100%)`,
-            borderRadius: '16px 16px 0 0',
-            py: 4,
-            px: 3,
-            textAlign: 'center',
-            transition: 'background 0.4s ease',
-          }}
-        >
-          <Avatar
-            sx={{
-              width: 72,
-              height: 72,
-              mx: 'auto',
-              mb: 1.5,
-              bgcolor: 'rgba(255,255,255,0.15)',
-              border: '3px solid rgba(255,255,255,0.4)',
-              backdropFilter: 'blur(8px)',
-            }}
-          >
-            <School sx={{ fontSize: 38, color: '#fff' }} />
-          </Avatar>
-          <Typography variant="h5" fontWeight={700} color="white" letterSpacing={0.5}>
-            STC College Portal
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)', mt: 0.5 }}>
-            Sree Saraswathi Thyagaraja College
-          </Typography>
-        </Box>
+        <CardContent sx={{ p: 4 }}>
+          {/* Logo and title */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Box
+              sx={{
+                width: 56,
+                height: 56,
+                borderRadius: 2,
+                bgcolor: `${activeRole.color}15`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                mx: 'auto',
+                mb: 2,
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <School sx={{ fontSize: 28, color: activeRole.color, transition: 'color 0.3s ease' }} />
+            </Box>
+            <Typography variant="h5" fontWeight={700} color="text.primary">
+              Welcome back
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Sign in to STC College Portal
+            </Typography>
+          </Box>
 
-        <CardContent sx={{ px: 4, py: 4 }}>
           {/* Role Selector */}
-          <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ mb: 1, display: 'block', textAlign: 'center' }}>
-            SELECT YOUR ROLE
+          <Typography 
+            variant="caption" 
+            color="text.secondary" 
+            fontWeight={500} 
+            sx={{ mb: 1, display: 'block', letterSpacing: '0.05em' }}
+          >
+            SELECT ROLE
           </Typography>
           <ToggleButtonGroup
             value={role}
@@ -142,16 +151,22 @@ export default function Login() {
                 value={r.value}
                 id={`role-btn-${r.value}`}
                 sx={{
-                  py: 1.2,
+                  py: 1,
                   gap: 0.8,
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  border: '1.5px solid',
-                  borderColor: 'divider',
+                  fontSize: '0.8125rem',
+                  fontWeight: 500,
+                  border: '1px solid #E5E7EB',
+                  color: '#6B7280',
                   '&.Mui-selected': {
-                    background: `${r.color}18`,
+                    background: `${r.color}10`,
                     borderColor: r.color,
                     color: r.color,
+                    '&:hover': {
+                      background: `${r.color}15`,
+                    },
+                  },
+                  '&:hover': {
+                    bgcolor: '#F9FAFB',
                   },
                 }}
               >
@@ -163,7 +178,7 @@ export default function Login() {
 
           {/* Errors */}
           {(error || localError) && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
               {localError || error}
             </Alert>
           )}
@@ -180,7 +195,7 @@ export default function Login() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <AccountCircle color="action" />
+                    <AccountCircle sx={{ color: '#9CA3AF' }} />
                   </InputAdornment>
                 ),
               }}
@@ -198,7 +213,7 @@ export default function Login() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock color="action" />
+                    <Lock sx={{ color: '#9CA3AF' }} />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -207,6 +222,7 @@ export default function Login() {
                       id="toggle-password-visibility"
                       onClick={() => setShowPass(!showPass)}
                       edge="end"
+                      sx={{ color: '#9CA3AF' }}
                     >
                       {showPass ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -224,18 +240,29 @@ export default function Login() {
               disabled={loading}
               sx={{
                 py: 1.5,
-                fontSize: '1rem',
-                background: `linear-gradient(90deg, ${activeRole.color} 0%, #1565C0 100%)`,
-                transition: 'background 0.4s ease',
+                fontSize: '0.9375rem',
+                fontWeight: 600,
+                bgcolor: activeRole.color,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  bgcolor: activeRole.color,
+                  filter: 'brightness(0.9)',
+                },
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : `Sign In as ${activeRole.label}`}
+              {loading ? <CircularProgress size={24} color="inherit" /> : `Sign in as ${activeRole.label}`}
             </Button>
           </form>
 
-          <Divider sx={{ my: 3 }} />
-          <Typography variant="caption" color="text.secondary" textAlign="center" display="block">
-            © 2026 Sree Saraswathi Thyagaraja College ·           </Typography>
+          <Typography 
+            variant="caption" 
+            color="text.secondary" 
+            textAlign="center" 
+            display="block"
+            sx={{ mt: 3 }}
+          >
+            © 2026 Sree Saraswathi Thyagaraja College
+          </Typography>
         </CardContent>
       </Card>
     </Box>

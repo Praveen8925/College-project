@@ -9,6 +9,7 @@ import {
 import { Add, Delete, Work, Close } from '@mui/icons-material';
 import { getWorkDiary, addWorkDiary, deleteWorkDiary } from '../../../api/workdiary';
 import { useAuth } from '../../../context/AuthContext';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const TODAY = new Date().toISOString().split('T')[0];
 const PERIODS = ['1','2','3','4','5','6','7','8'];
@@ -68,10 +69,10 @@ export default function WorkDiary() {
   }, {});
 
   return (
-    <Box sx={{ p:3 }}>
+    <PageWrapper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
-          <Typography variant="h5" fontWeight={700}>Work Diary</Typography>
+          <Typography variant="h4" fontWeight={700}>Work Diary</Typography>
           <Typography variant="body2" color="text.secondary">{user?.name} · {user?.dept}</Typography>
         </Box>
         <Button id="add-diary-btn" variant="contained" startIcon={<Add />} onClick={() => setAddOpen(true)}>
@@ -79,13 +80,13 @@ export default function WorkDiary() {
         </Button>
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
       {loading ? (
         <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>
       ) : entries.length === 0 ? (
         <Box py={8} textAlign="center">
-          <Work sx={{ fontSize:56, color:'#ccc', mb:2 }} />
+          <Work sx={{ fontSize:56, color:'#D1D5DB', mb:2 }} />
           <Typography color="text.secondary">No work diary entries yet. Add your first entry!</Typography>
         </Box>
       ) : (
@@ -95,13 +96,13 @@ export default function WorkDiary() {
           <Box key={date} mb={3}>
             <Box display="flex" alignItems="center" gap={1} mb={1.5}>
               <Chip label={new Date(date).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-                color="primary" size="small" />
+                sx={{ bgcolor: '#EEF2FF', color: '#4F46E5', fontWeight: 600 }} size="small" />
               <Chip label={`${dayEntries.length} period(s)`} variant="outlined" size="small" />
             </Box>
-            <TableContainer component={Paper} sx={{ borderRadius:2, boxShadow:'0 1px 8px rgba(0,0,0,0.06)' }}>
+            <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ bgcolor:'#F4F6F8' }}>
+                  <TableRow sx={{ bgcolor:'#F9FAFB' }}>
                     <TableCell sx={{ fontWeight:700 }}>Period</TableCell>
                     <TableCell sx={{ fontWeight:700 }}>Class</TableCell>
                     <TableCell sx={{ fontWeight:700 }}>Subject</TableCell>
@@ -115,7 +116,7 @@ export default function WorkDiary() {
                     const pk = e.WID ?? e.ID ?? e.id ?? i;
                     return (
                       <TableRow key={pk} hover>
-                        <TableCell><Chip label={`Period ${e.Period || '—'}`} size="small" variant="outlined"/></TableCell>
+                        <TableCell><Chip label={`Period ${e.Period || '—'}`} size="small" sx={{ bgcolor: '#F3F4F6', fontWeight: 500 }}/></TableCell>
                         <TableCell>{e.ClassNo || '—'}</TableCell>
                         <TableCell><b>{e.Subject}</b></TableCell>
                         <TableCell>{e.Topic}</TableCell>
@@ -143,10 +144,10 @@ export default function WorkDiary() {
           <IconButton onClick={() => setAddOpen(false)}><Close /></IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+          {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
           <Grid container spacing={2}>
-            <Grid item xs={6}><TextField id="diary-date" fullWidth label="Date *" type="date" InputLabelProps={{ shrink:true }} value={form.Date} onChange={set('Date')} /></Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}><TextField id="diary-date" fullWidth label="Date *" type="date" InputLabelProps={{ shrink:true }} value={form.Date} onChange={set('Date')} /></Grid>
+            <Grid size={{ xs: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Period</InputLabel>
                 <Select value={form.Period} label="Period" id="diary-period" onChange={set('Period')}>
@@ -154,10 +155,10 @@ export default function WorkDiary() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}><TextField id="diary-class" fullWidth label="Class / Section" value={form.ClassNo} onChange={set('ClassNo')} placeholder="e.g. III B.Sc IT A" /></Grid>
-            <Grid item xs={6}><TextField id="diary-students" fullWidth label="Students Present" type="number" value={form.StudentsPresent} onChange={set('StudentsPresent')} /></Grid>
-            <Grid item xs={12}><TextField id="diary-subject" fullWidth label="Subject *" value={form.Subject} onChange={set('Subject')} /></Grid>
-            <Grid item xs={12}><TextField id="diary-topic" fullWidth label="Topic Covered *" multiline rows={2} value={form.Topic} onChange={set('Topic')} /></Grid>
+            <Grid size={{ xs: 6 }}><TextField id="diary-class" fullWidth label="Class / Section" value={form.ClassNo} onChange={set('ClassNo')} placeholder="e.g. III B.Sc IT A" /></Grid>
+            <Grid size={{ xs: 6 }}><TextField id="diary-students" fullWidth label="Students Present" type="number" value={form.StudentsPresent} onChange={set('StudentsPresent')} /></Grid>
+            <Grid size={{ xs: 12 }}><TextField id="diary-subject" fullWidth label="Subject *" value={form.Subject} onChange={set('Subject')} /></Grid>
+            <Grid size={{ xs: 12 }}><TextField id="diary-topic" fullWidth label="Topic Covered *" multiline rows={2} value={form.Topic} onChange={set('Topic')} /></Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px:3, py:2 }}>
@@ -181,6 +182,6 @@ export default function WorkDiary() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

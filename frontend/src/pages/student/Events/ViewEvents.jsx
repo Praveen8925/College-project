@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { EventNote, Search } from '@mui/icons-material';
 import { getStudentEvents } from '../../../api/student';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 export default function ViewEvents() {
   const [events,  setEvents]  = useState([]);
@@ -32,11 +33,11 @@ export default function ViewEvents() {
   }, [search, events]);
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>College Events</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>College Events</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>Stay updated with all college announcements and events</Typography>
 
-      {error && <Alert severity="info" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="info" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
       <TextField id="events-search" fullWidth size="small" placeholder="Search events…"
         value={search} onChange={e => setSearch(e.target.value)} sx={{ mb:2 }}
@@ -46,7 +47,7 @@ export default function ViewEvents() {
         <Box display="flex" justifyContent="center" py={8}><CircularProgress size={48}/></Box>
       ) : filtered.length === 0 ? (
         <Box py={8} textAlign="center">
-          <EventNote sx={{ fontSize:56, color:'#ccc', mb:2 }} />
+          <EventNote sx={{ fontSize:56, color:'#D1D5DB', mb:2 }} />
           <Typography color="text.secondary">No events found.</Typography>
         </Box>
       ) : (
@@ -57,7 +58,7 @@ export default function ViewEvents() {
                 <Box key={ev.EventID}>
                   <ListItem sx={{ py:2, px:3 }}>
                     <Avatar sx={{
-                      bgcolor:'#E8EAF6', color:'#1A237E', mr:2, width:42, height:42,
+                      bgcolor:'#EEF2FF', color:'#4F46E5', mr:2, width:42, height:42,
                       fontSize:14, fontWeight:700, flexShrink:0,
                     }}>
                       {ev.EventID}
@@ -78,6 +79,6 @@ export default function ViewEvents() {
       <Typography variant="caption" color="text.secondary" display="block" mt={2} textAlign="center">
         {filtered.length} event(s) · STC Online Portal
       </Typography>
-    </Box>
+    </PageWrapper>
   );
 }

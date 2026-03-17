@@ -4,17 +4,19 @@ import {
   MenuItem, FormControl, InputLabel, CircularProgress, Alert, Chip,
   Table, TableHead, TableRow, TableCell, TableBody, LinearProgress,
 } from '@mui/material';
-import { Download, Print, FilterList } from '@mui/icons-material';
+import { Download, Print, FilterList, FileDownload } from '@mui/icons-material';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Cell, PieChart, Pie, Legend,
 } from 'recharts';
 import { getMarksReport } from '../../../api/reports';
+import { exportToExcel } from '../../../utils/exportExcel';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const BATCHES = [2014, 2015, 2016, 2017, 2018];
 const SEMS    = [1, 2, 3, 4, 5, 6];
-const GRADE_COLOR = {S:'#1A237E',A:'#2E7D32',B:'#00838F',C:'#F57F17',D:'#E65100',F:'#C62828','—':'#9E9E9E'};
-const GRADE_COLORS_ARR = ['#1A237E','#2E7D32','#00838F','#F57F17','#E65100','#C62828'];
+const GRADE_COLOR = {S:'#4F46E5',A:'#059669',B:'#0891B2',C:'#D97706',D:'#EA580C',F:'#DC2626','—':'#9CA3AF'};
+const GRADE_COLORS_ARR = ['#4F46E5','#059669','#0891B2','#D97706','#EA580C','#DC2626'];
 
 function exportCSV(rows, batch, sem) {
   const hdr  = ['RegNo','Name','Dept','CT1(/25)','CT2(/25)','Model(/50)','Assign(/25)','Total(/125)','%','Grade'];
@@ -53,12 +55,27 @@ export default function MarksReport() {
     w.document.write(`<html><head><title>Marks Report - Batch ${batch}</title>
       <style>body{font-family:Arial;font-size:11px;}
       table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ccc;padding:5px;text-align:left;}
-      th{background:#1A237E;color:white;} h2{color:#1A237E;}
+      th{background:#4F46E5;color:white;} h2{color:#4F46E5;}
       @media print{button{display:none;}}</style></head>
       <body><h2>Internal Marks Report — Batch ${batch} ${sem?`Sem ${sem}`:''}</h2>
       ${content}<p style="font-size:10px;color:#888;">Generated: ${new Date().toLocaleString()}</p>
       </body></html>`);
     w.document.close(); w.print();
+  };
+
+  const handleExport = () => {
+    if (!data?.students?.length) return;
+    const flatData = data.students.map(s => ({
+      RegNo: s.RegNo, Name: s.Name, Department: s.Department, Batch: s.Batch,
+      CT1_avg: s.CT1_avg, CT2_avg: s.CT2_avg, Model_avg: s.Model_avg,
+      Overall_avg: s.Overall_avg, Grade: s.Grade
+    }));
+    exportToExcel(flatData, 'Marks_Report', 'Internal Marks',
+      ['RegNo','Name','Department','Batch','CT1_avg','CT2_avg','Model_avg','Overall_avg','Grade'],
+      { RegNo:'Register No', Name:'Student Name', Department:'Department', Batch:'Batch',
+        CT1_avg:'CT1 Average', CT2_avg:'CT2 Average', Model_avg:'Model Average',
+        Overall_avg:'Overall Average', Grade:'Grade' }
+    );
   };
 
   const gradeData = data ? ['S','A','B','C','D','F'].map((g,i)=>({
@@ -71,15 +88,15 @@ export default function MarksReport() {
     .slice(0,40);
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>Consolidated Marks Report</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>Consolidated Marks Report</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>CT1 + CT2 + Model + Assignment marks for any batch</Typography>
 
       {/* Controls */}
       <Card sx={{ mb:3 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Batch Year *</InputLabel>
                 <Select id="marks-batch" value={batch} label="Batch Year *" onChange={e=>setBatch(e.target.value)}>
@@ -87,7 +104,7 @@ export default function MarksReport() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Semester</InputLabel>
                 <Select id="marks-sem" value={sem} label="Semester" onChange={e=>setSem(e.target.value)}>
@@ -96,7 +113,7 @@ export default function MarksReport() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Button id="load-marks-report" fullWidth variant="contained" onClick={load} disabled={loading}
                 startIcon={loading?<CircularProgress size={16}/>:<FilterList/>}>
                 {loading ? 'Loading…' : 'Generate Report'}
@@ -106,22 +123,22 @@ export default function MarksReport() {
         </CardContent>
       </Card>
 
-      {error && <Alert severity="warning" sx={{mb:2}}>{error}</Alert>}
+      {error && <Alert severity="warning" sx={{mb:2, borderRadius: 2}}>{error}</Alert>}
 
       {data && (
         <>
           {/* Summary stat cards */}
           <Grid container spacing={2} mb={3}>
             {[
-              {label:'Total Students', value:data.summary.total,         color:'#1A237E'},
-              {label:'Marks Entered',  value:data.summary.entered,       color:'#2E7D32'},
-              {label:'Avg %',          value:`${data.summary.avg_pct}%`, color:'#00838F'},
+              {label:'Total Students', value:data.summary.total,         color:'#4F46E5'},
+              {label:'Marks Entered',  value:data.summary.entered,       color:'#059669'},
+              {label:'Avg %',          value:`${data.summary.avg_pct}%`, color:'#0891B2'},
               ...['S','A','B','C','D','F'].map((g,i)=>({
                 label:`Grade ${g}`, value:data.summary[g]||0, color:GRADE_COLORS_ARR[i]
               })),
             ].map(s=>(
-              <Grid item xs={6} sm={3} md={1.5} key={s.label}>
-                <Card sx={{textAlign:'center'}}>
+              <Grid size={{ xs: 6, sm: 3, md: 1.5 }} key={s.label}>
+                <Card sx={{textAlign:'center', borderTop: `3px solid ${s.color}`}}>
                   <CardContent sx={{py:'12px !important'}}>
                     <Typography variant="h4" fontWeight={800} color={s.color}>{s.value}</Typography>
                     <Typography variant="caption" color="text.secondary">{s.label}</Typography>
@@ -133,7 +150,7 @@ export default function MarksReport() {
 
           {/* Charts */}
           <Grid container spacing={3} mb={3}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" fontWeight={600} mb={2}>Grade Distribution</Typography>
@@ -149,7 +166,7 @@ export default function MarksReport() {
                 </CardContent>
               </Card>
             </Grid>
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <Card>
                 <CardContent>
                   <Typography variant="h6" fontWeight={600} mb={2}>
@@ -158,7 +175,7 @@ export default function MarksReport() {
                   {pctChartData.length > 0 ? (
                     <ResponsiveContainer width="100%" height={200}>
                       <BarChart data={pctChartData} margin={{top:0,right:10,left:-20,bottom:0}}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0"/>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB"/>
                         <XAxis dataKey="name" tick={{fontSize:9}} interval={Math.floor(pctChartData.length/15)}/>
                         <YAxis tick={{fontSize:11}} domain={[0,100]}/>
                         <Tooltip formatter={v=>[`${v}%`,'Score']}/>
@@ -179,8 +196,8 @@ export default function MarksReport() {
 
           {/* Export / Print */}
           <Box display="flex" gap={2} mb={2} justifyContent="flex-end">
-            <Button id="export-marks-csv" startIcon={<Download/>} variant="outlined"
-              onClick={()=>exportCSV(data.students, batch, sem)}>Export CSV</Button>
+            <Button id="export-marks-excel" startIcon={<FileDownload/>} variant="contained"
+              onClick={handleExport}>Export Excel</Button>
             <Button id="print-marks-report" startIcon={<Print/>} variant="outlined"
               onClick={handlePrint}>Print Report</Button>
           </Box>
@@ -193,7 +210,7 @@ export default function MarksReport() {
                   <TableHead>
                     <TableRow>
                       {['#','RegNo','Name','Dept','CT1\n/25','CT2\n/25','Model\n/50','Assign\n/25','Total\n/125','%','Grade'].map(h=>(
-                        <TableCell key={h} sx={{fontWeight:700,bgcolor:'#1A237E',color:'white',fontSize:'0.7rem',whiteSpace:'pre'}}>
+                        <TableCell key={h} sx={{fontWeight:700,bgcolor:'#4F46E5',color:'white',fontSize:'0.7rem',whiteSpace:'pre'}}>
                           {h}
                         </TableCell>
                       ))}
@@ -201,14 +218,14 @@ export default function MarksReport() {
                   </TableHead>
                   <TableBody>
                     {data.students.map((r,i)=>(
-                      <TableRow key={r.RegNo} sx={{'&:hover':{bgcolor:'#F8F9FF'},bgcolor:i%2?'#FAFAFA':'white'}}>
-                        <TableCell sx={{fontSize:'0.7rem',color:'#888'}}>{i+1}</TableCell>
+                      <TableRow key={r.RegNo} sx={{'&:hover':{bgcolor:'#F9FAFB'},bgcolor:i%2?'#FAFAFA':'white'}}>
+                        <TableCell sx={{fontSize:'0.7rem',color:'#9CA3AF'}}>{i+1}</TableCell>
                         <TableCell sx={{fontSize:'0.7rem',fontWeight:600}}>{r.RegNo}</TableCell>
                         <TableCell sx={{fontSize:'0.7rem'}}>{r.Name}</TableCell>
                         <TableCell sx={{fontSize:'0.7rem'}}>{r.Department}</TableCell>
                         {['CT1','CT2','Model','Assignment'].map(k=>(
                           <TableCell key={k} sx={{fontSize:'0.7rem',textAlign:'center',
-                            color: r[k]!==null?'#1A237E':'#aaa',fontWeight:r[k]!==null?700:400}}>
+                            color: r[k]!==null?'#4F46E5':'#D1D5DB',fontWeight:r[k]!==null?700:400}}>
                             {r[k] ?? '—'}
                           </TableCell>
                         ))}
@@ -236,6 +253,6 @@ export default function MarksReport() {
           </Typography>
         </>
       )}
-    </Box>
+    </PageWrapper>
   );
 }

@@ -4,7 +4,15 @@
  * and production same-origin requests.
  */
 function setCORSHeaders(): void {
-    $allowed_origins = ['http://localhost:5173', 'http://localhost'];
+    $allowed_origins = [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'http://localhost:5176',
+        'http://localhost:5177',
+        'http://localhost:5178',
+        'http://localhost',
+    ];
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
     if (in_array($origin, $allowed_origins)) {

@@ -8,6 +8,7 @@ import {
 import { CloudUpload, PictureAsPdf, Article, Delete, MenuBook } from '@mui/icons-material';
 import { getNotes, uploadNote, deleteNote } from '../../../api/notes';
 import { useAuth } from '../../../context/AuthContext';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const SEMS = [1,2,3,4,5,6];
 const FILE_ICONS = { pdf: <PictureAsPdf color="error" />, docx: <Article color="primary" />, doc: <Article color="primary" /> };
@@ -70,23 +71,23 @@ export default function UploadNotes() {
   };
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>Upload Notes</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>Upload Notes</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>Share study materials with students</Typography>
 
-      {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
       <Grid container spacing={3}>
         {/* Upload Form */}
-        <Grid item xs={12} md={5}>
-          <Card>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Card sx={{ borderLeft: '4px solid #059669' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2}>Upload New Note</Typography>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <TextField id="notes-batch" fullWidth label="Batch Year *" type="number" value={form.Batch} onChange={set('Batch')} />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={{ xs: 6 }}>
                   <FormControl fullWidth>
                     <InputLabel>Semester *</InputLabel>
                     <Select value={form.sem} label="Semester *" id="notes-sem" onChange={set('sem')}>
@@ -94,26 +95,26 @@ export default function UploadNotes() {
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField id="notes-subcode" fullWidth label="Subject Code" value={form.SubjectCode} onChange={set('SubjectCode')} />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField id="notes-desc" fullWidth label="Description / Topic" multiline rows={2} value={form.Description} onChange={set('Description')} />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   {/* File picker */}
                   <Box
                     sx={{
-                      border:'2px dashed', borderColor: selFile ? 'primary.main' : 'divider',
+                      border:'2px dashed', borderColor: selFile ? '#4F46E5' : '#E5E7EB',
                       borderRadius:2, p:3, textAlign:'center', cursor:'pointer',
-                      bgcolor: selFile ? 'primary.50' : 'transparent',
+                      bgcolor: selFile ? '#EEF2FF' : 'transparent',
                       transition:'all 0.2s',
-                      '&:hover':{ borderColor:'primary.main', bgcolor:'#E8EAF6' },
+                      '&:hover':{ borderColor:'#4F46E5', bgcolor:'#EEF2FF' },
                     }}
                     onClick={() => fileRef.current?.click()}
                   >
-                    <CloudUpload sx={{ fontSize:36, color: selFile ? 'primary.main' : 'text.secondary', mb:1 }} />
-                    <Typography variant="body2" color={selFile ? 'primary' : 'text.secondary'}>
+                    <CloudUpload sx={{ fontSize:36, color: selFile ? '#4F46E5' : '#9CA3AF', mb:1 }} />
+                    <Typography variant="body2" color={selFile ? '#4F46E5' : 'text.secondary'}>
                       {selFile ? selFile.name : 'Click to select file (PDF, DOCX, PPT)'}
                     </Typography>
                     {selFile && (
@@ -123,7 +124,7 @@ export default function UploadNotes() {
                       onChange={e => setSelFile(e.target.files?.[0] || null)} />
                   </Box>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Button id="upload-notes-btn" fullWidth variant="contained" size="large"
                     onClick={handleUpload} disabled={saving}
                     startIcon={saving ? <CircularProgress size={18}/> : <CloudUpload />}>
@@ -136,7 +137,7 @@ export default function UploadNotes() {
         </Grid>
 
         {/* Uploaded Notes List */}
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height:'100%' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2}>My Uploaded Notes ({notes.length})</Typography>
@@ -144,7 +145,7 @@ export default function UploadNotes() {
                 <Box display="flex" justifyContent="center" py={4}><CircularProgress /></Box>
               ) : notes.length === 0 ? (
                 <Box py={6} textAlign="center">
-                  <MenuBook sx={{ fontSize:48, color:'#ccc', mb:1 }} />
+                  <MenuBook sx={{ fontSize:48, color:'#D1D5DB', mb:1 }} />
                   <Typography color="text.secondary">No notes uploaded yet.</Typography>
                 </Box>
               ) : (
@@ -182,6 +183,6 @@ export default function UploadNotes() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

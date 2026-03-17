@@ -7,12 +7,13 @@ import { EmojiEvents, School, Star } from '@mui/icons-material';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { getStudentMarks } from '../../../api/student';
 import { useAuth } from '../../../context/AuthContext';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const TEST_CONFIG = [
-  { key:'CT1',    color:'#1565C0', label:'Cycle Test 1', icon:'🔵' },
-  { key:'CT2',    color:'#6A1B9A', label:'Cycle Test 2', icon:'🟣' },
-  { key:'Model',  color:'#00695C', label:'Model Exam',   icon:'🟢' },
-  { key:'Assignment', color:'#E65100', label:'Assignment', icon:'🟠' },
+  { key:'CT1',    color:'#4F46E5', label:'Cycle Test 1', icon:'🔵' },
+  { key:'CT2',    color:'#7C3AED', label:'Cycle Test 2', icon:'🟣' },
+  { key:'Model',  color:'#059669', label:'Model Exam',   icon:'🟢' },
+  { key:'Assignment', color:'#EA580C', label:'Assignment', icon:'🟠' },
 ];
 
 function grade(mark, max) {
@@ -25,7 +26,7 @@ function grade(mark, max) {
   if (pct >= 50) return 'D';
   return 'F';
 }
-const GRADE_COLOR = { S:'#1A237E', A:'#2E7D32', B:'#00838F', C:'#F57F17', D:'#E65100', F:'#C62828', '—':'#9E9E9E' };
+const GRADE_COLOR = { S:'#4F46E5', A:'#059669', B:'#0891B2', C:'#D97706', D:'#EA580C', F:'#DC2626', '—':'#9CA3AF' };
 
 export default function MyMarks() {
   const { user } = useAuth();
@@ -65,13 +66,13 @@ export default function MyMarks() {
   const overall = totalMax > 0 ? Math.round((totalMark/totalMax)*100) : 0;
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>My Internal Marks</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>My Internal Marks</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>
         {user?.name} · Batch {user?.batch} · Semester {user?.sem}
       </Typography>
 
-      {error && <Alert severity="info" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="info" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
       <Grid container spacing={3}>
         {/* Mark Cards */}
@@ -83,11 +84,11 @@ export default function MyMarks() {
           const g    = grade(mark, max);
           const found= info?.found;
           return (
-            <Grid item xs={12} sm={6} md={3} key={t.key}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }} key={t.key}>
               <Card sx={{ textAlign:'center', position:'relative', overflow:'visible' }}>
                 {found && (
                   <Chip label={`Grade ${g}`} size="small"
-                    sx={{ position:'absolute', top:-12, right:12, bgcolor:GRADE_COLOR[g], color:'white', fontWeight:700 }} />
+                    sx={{ position:'absolute', top:-12, right:12, bgcolor:GRADE_COLOR[g], color:'white', fontWeight:700, borderRadius: 999 }} />
                 )}
                 <CardContent sx={{ pt:3 }}>
                   <Typography variant="caption" color="text.secondary" fontWeight={600}>{t.icon} {t.label}</Typography>
@@ -111,7 +112,7 @@ export default function MyMarks() {
         })}
 
         {/* Radar Chart */}
-        <Grid item xs={12} md={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2}>Performance Radar</Typography>
@@ -119,7 +120,7 @@ export default function MyMarks() {
                 <RadarChart data={radarData}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="subject" tick={{ fontSize:12 }} />
-                  <Radar name="Your %" dataKey="pct" fill="#1A237E" fillOpacity={0.25} stroke="#1A237E" strokeWidth={2} />
+                  <Radar name="Your %" dataKey="pct" fill="#4F46E5" fillOpacity={0.25} stroke="#4F46E5" strokeWidth={2} />
                   <Tooltip formatter={(v,n,p) => [`${p.payload.mark ?? '—'} / ${p.payload.max}`, p.payload.subject]} />
                 </RadarChart>
               </ResponsiveContainer>
@@ -128,7 +129,7 @@ export default function MyMarks() {
         </Grid>
 
         {/* Summary */}
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ height:'100%' }}>
             <CardContent>
               <Typography variant="h6" fontWeight={600} mb={2}>Summary</Typography>
@@ -136,12 +137,12 @@ export default function MyMarks() {
 
               {/* Overall Score */}
               <Box display="flex" alignItems="center" gap={2} mb={3}
-                sx={{ p:2, bgcolor:'#E8EAF6', borderRadius:2 }}>
-                <Avatar sx={{ bgcolor:'#1A237E', width:52, height:52 }}>
+                sx={{ p:2, bgcolor:'#EEF2FF', borderRadius:2 }}>
+                <Avatar sx={{ bgcolor:'#4F46E5', width:52, height:52 }}>
                   <EmojiEvents />
                 </Avatar>
                 <Box>
-                  <Typography variant="h4" fontWeight={800} color="#1A237E">{overall}%</Typography>
+                  <Typography variant="h4" fontWeight={800} color="#4F46E5">{overall}%</Typography>
                   <Typography variant="body2" color="text.secondary">
                     Overall — {Math.round(totalMark)}/{totalMax} marks
                   </Typography>
@@ -182,6 +183,6 @@ export default function MyMarks() {
           </Card>
         </Grid>
       </Grid>
-    </Box>
+    </PageWrapper>
   );
 }

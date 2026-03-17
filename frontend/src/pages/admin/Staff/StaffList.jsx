@@ -8,6 +8,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, Edit, Delete, Search, Close } from '@mui/icons-material';
 import { getStaffList, addStaff, updateStaff, deleteStaff } from '../../../api/staff';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const DESIGNATIONS = ['Professor','Associate Professor','Assistant Professor','Senior Lecturer','Lecturer','Lab Assistant','Office Staff'];
 const EMPTY_FORM = { SID:'', Name:'', Department:'', Designation:'', Emailid:'', Password:'',
@@ -83,10 +84,10 @@ export default function StaffList() {
   const set = (key) => (e) => setDialog(d => ({ ...d, data: { ...d.data, [key]: e.target.value } }));
 
   return (
-    <Box sx={{ p: 3 }}>
+    <PageWrapper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box>
-          <Typography variant="h5" fontWeight={700}>Staff Management</Typography>
+          <Typography variant="h4" fontWeight={700}>Staff Management</Typography>
           <Typography variant="body2" color="text.secondary">{rows.length} staff member(s) found</Typography>
         </Box>
         <Button id="add-staff-btn" variant="contained" startIcon={<Add />} onClick={openAdd}>Add Staff</Button>
@@ -105,12 +106,12 @@ export default function StaffList() {
         </FormControl>
       </Box>
 
-      <Box sx={{ borderRadius: 2, overflow:'hidden', boxShadow:'0 2px 12px rgba(0,0,0,0.07)' }}>
+      <Box sx={{ borderRadius: 2, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.08)' }}>
         <DataGrid
           rows={rows} columns={columns} loading={loading}
           pageSizeOptions={[10,25,50]} initialState={{ pagination:{ paginationModel:{ pageSize:10 } } }}
           disableRowSelectionOnClick autoHeight
-          sx={{ bgcolor:'white', border:'none', '& .MuiDataGrid-columnHeaders':{ bgcolor:'#F4F6F8', fontWeight:700 } }}
+          sx={{ bgcolor:'white', border:'none', '& .MuiDataGrid-columnHeaders':{ bgcolor:'#F9FAFB', fontWeight:700 } }}
         />
       </Box>
 
@@ -125,13 +126,13 @@ export default function StaffList() {
           <Tab label="Profile Details" id="tab-profile" />
         </Tabs>
         <DialogContent dividers>
-          {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+          {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
           {dialog.tab === 0 && (
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}><TextField id="form-sid" fullWidth label="Staff ID *" value={dialog.data.SID} onChange={set('SID')} disabled={dialog.mode==='edit'} /></Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-staff-name" fullWidth label="Full Name *" value={dialog.data.Name} onChange={set('Name')} /></Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-staff-dept" fullWidth label="Department *" value={dialog.data.Department} onChange={set('Department')} /></Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-sid" fullWidth label="Staff ID *" value={dialog.data.SID} onChange={set('SID')} disabled={dialog.mode==='edit'} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-staff-name" fullWidth label="Full Name *" value={dialog.data.Name} onChange={set('Name')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-staff-dept" fullWidth label="Department *" value={dialog.data.Department} onChange={set('Department')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <FormControl fullWidth>
                   <InputLabel>Designation *</InputLabel>
                   <Select value={dialog.data.Designation} label="Designation *" id="form-designation" onChange={set('Designation')}>
@@ -139,21 +140,21 @@ export default function StaffList() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-staff-email" fullWidth label="Email ID *" type="email" value={dialog.data.Emailid} onChange={set('Emailid')} /></Grid>
-              {dialog.mode==='add' && <Grid item xs={12} sm={6}><TextField id="form-staff-pass" fullWidth label="Password *" type="password" value={dialog.data.Password} onChange={set('Password')} /></Grid>}
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-staff-email" fullWidth label="Email ID *" type="email" value={dialog.data.Emailid} onChange={set('Emailid')} /></Grid>
+              {dialog.mode==='add' && <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-staff-pass" fullWidth label="Password *" type="password" value={dialog.data.Password} onChange={set('Password')} /></Grid>}
             </Grid>
           )}
           {dialog.tab === 1 && (
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}><TextField id="form-qualification" fullWidth label="Qualification" value={dialog.data.Qualification||''} onChange={set('Qualification')} /></Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-domain" fullWidth label="Domain / Specialization" value={dialog.data.Domain||''} onChange={set('Domain')} /></Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-staff-dob" fullWidth label="Date of Birth" type="date" InputLabelProps={{ shrink:true }} value={dialog.data.DOB||''} onChange={set('DOB')} /></Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-doj" fullWidth label="Date of Joining" type="date" InputLabelProps={{ shrink:true }} value={dialog.data.DOJ||''} onChange={set('DOJ')} /></Grid>
-              <Grid item xs={12}><TextField id="form-staff-address" fullWidth label="Address" multiline rows={2} value={dialog.data.Address||''} onChange={set('Address')} /></Grid>
-              <Grid item xs={12} sm={6}><TextField id="form-staff-mobile" fullWidth label="Mobile Number" value={dialog.data.Mobileno||''} onChange={set('Mobileno')} /></Grid>
-              <Grid item xs={12} sm={2}><TextField id="form-ugexp" fullWidth label="UG Exp (yrs)" type="number" value={dialog.data.UGExp||0} onChange={set('UGExp')} /></Grid>
-              <Grid item xs={12} sm={2}><TextField id="form-pgexp" fullWidth label="PG Exp (yrs)" type="number" value={dialog.data.PGExp||0} onChange={set('PGExp')} /></Grid>
-              <Grid item xs={12} sm={2}><TextField id="form-indexp" fullWidth label="Industry Exp" type="number" value={dialog.data.Industryexp||0} onChange={set('Industryexp')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-qualification" fullWidth label="Qualification" value={dialog.data.Qualification||''} onChange={set('Qualification')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-domain" fullWidth label="Domain / Specialization" value={dialog.data.Domain||''} onChange={set('Domain')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-staff-dob" fullWidth label="Date of Birth" type="date" InputLabelProps={{ shrink:true }} value={dialog.data.DOB||''} onChange={set('DOB')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-doj" fullWidth label="Date of Joining" type="date" InputLabelProps={{ shrink:true }} value={dialog.data.DOJ||''} onChange={set('DOJ')} /></Grid>
+              <Grid size={{ xs: 12 }}><TextField id="form-staff-address" fullWidth label="Address" multiline rows={2} value={dialog.data.Address||''} onChange={set('Address')} /></Grid>
+              <Grid size={{ xs: 12, sm: 6 }}><TextField id="form-staff-mobile" fullWidth label="Mobile Number" value={dialog.data.Mobileno||''} onChange={set('Mobileno')} /></Grid>
+              <Grid size={{ xs: 12, sm: 2 }}><TextField id="form-ugexp" fullWidth label="UG Exp (yrs)" type="number" value={dialog.data.UGExp||0} onChange={set('UGExp')} /></Grid>
+              <Grid size={{ xs: 12, sm: 2 }}><TextField id="form-pgexp" fullWidth label="PG Exp (yrs)" type="number" value={dialog.data.PGExp||0} onChange={set('PGExp')} /></Grid>
+              <Grid size={{ xs: 12, sm: 2 }}><TextField id="form-indexp" fullWidth label="Industry Exp" type="number" value={dialog.data.Industryexp||0} onChange={set('Industryexp')} /></Grid>
             </Grid>
           )}
         </DialogContent>
@@ -177,6 +178,6 @@ export default function StaffList() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

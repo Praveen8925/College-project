@@ -1,48 +1,84 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box, Grid, Card, CardContent, Typography, Avatar, Divider,
-  List, ListItem, ListItemText, Chip, CircularProgress, Alert,
-  Paper, Button, IconButton, Tooltip,
+  Box, Grid, Typography, Alert, Button, Tabs, Tab,
 } from '@mui/material';
 import {
-  People, Group, EventNote, ReportProblem, School,
-  ArrowForward, Refresh,
+  People, Group, EventNote, ReportProblem,
+  ArrowForward, TrendingUp, Assessment, Timeline,
 } from '@mui/icons-material';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer, Cell } from 'recharts';
+import { motion } from 'framer-motion';
 import { getDashboardStats } from '../../api/dashboard';
 import { useAuth } from '../../context/AuthContext';
+import { useRealTimeData, useRealTimeNotifications } from '../../hooks/useRealTimeData';
+import PageWrapper from '../../components/common/PageWrapper';
+import StatsCard from '../../components/common/StatsCard';
+import SectionCard from '../../components/common/SectionCard';
+import RealTimeIndicator, { LiveNotification } from '../../components/common/RealTimeIndicator';
+import { 
+  DepartmentChart, 
+  MarksDistributionChart, 
+  AttendanceTrendsChart, 
+  ComplaintStatusChart 
+} from '../../components/charts/EnhancedCharts';
 
 const STAT_CARDS = [
-  { key: 'students',   label: 'Total Students',   icon: <People />,       color: '#1A237E', route: '/admin/students',   bgGrad: 'linear-gradient(135deg,#1A237E,#3949AB)' },
-  { key: 'staff',      label: 'Total Staff',       icon: <Group />,        color: '#1565C0', route: '/admin/staff',      bgGrad: 'linear-gradient(135deg,#1565C0,#1E88E5)' },
-  { key: 'events',     label: 'Active Events',     icon: <EventNote />,    color: '#00695C', route: '/admin/events',     bgGrad: 'linear-gradient(135deg,#00695C,#26A69A)' },
-  { key: 'complaints', label: 'Open Complaints',   icon: <ReportProblem />,color: '#BF360C', route: '/admin/complaints', bgGrad: 'linear-gradient(135deg,#BF360C,#EF6C00)' },
+  { key: 'students',   label: 'Total Students',   icon: <People />,       color: 'primary' },
+  { key: 'staff',      label: 'Total Staff',       icon: <Group />,        color: 'info' },
+  { key: 'events',     label: 'Active Events',     icon: <EventNote />,    color: 'success' },
+  { key: 'complaints', label: 'Open Complaints',   icon: <ReportProblem />,color: 'warning' },
 ];
 
-const STATUS_COLOR = { Pending: 'warning', Resolved: 'success', default: 'default' };
+const ROUTES = {
+  students: '/admin/students',
+  staff: '/admin/staff',
+  events: '/admin/events',
+  complaints: '/admin/complaints',
+};
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const navigate  = useNavigate();
-  const [stats,   setStats]   = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState('');
+  const navigate = useNavigate();
+  const [currentTab, setCurrentTab] = useState(0);
 
-  const load = async () => {
-    setLoading(true); setError('');
-    try {
-      const { data } = await getDashboardStats();
-      if (data.success) setStats(data);
-      else setError(data.message || 'Failed to load stats.');
-    } catch {
-      setError('Could not reach server. Is WAMP running?');
-    } finally {
-      setLoading(false);
+  // Real-time data hook
+  const {
+    data: stats,
+    loading,
+    error,
+    lastUpdate,
+    isAutoRefreshing,
+    refresh,
+    toggleAutoRefresh,
+  } = useRealTimeData(
+    getDashboardStats,
+    {
+      refreshInterval: 30000, // 30 seconds
+      autoRefresh: true,
+      onDataUpdate: (newData, oldData) => {
+        // Check for new complaints
+        if (newData.stats.complaints > (oldData?.stats?.complaints || 0)) {
+          addNotification({
+            type: 'warning',
+            title: 'New Complaint',
+            message: 'A new complaint has been submitted',
+          });
+        }
+        // Check for new events
+        if (newData.stats.events > (oldData?.stats?.events || 0)) {
+          addNotification({
+            type: 'info',
+            title: 'New Event',
+            message: 'A new event has been added',
+          });
+        }
+      },
     }
-  };
+  );
 
-  useEffect(() => { load(); }, []);
+  // Real-time notifications
+  const { notifications, addNotification, removeNotification } = useRealTimeNotifications();
 
   const chartData = stats ? [
     { name: 'Students',   value: stats.stats.students },
@@ -50,135 +86,173 @@ export default function AdminDashboard() {
     { name: 'Events',     value: stats.stats.events   },
     { name: 'Complaints', value: stats.stats.complaints },
   ] : [];
-  const CHART_COLORS = ['#3949AB','#1E88E5','#26A69A','#EF6C00'];
+  const CHART_COLORS = ['#4F46E5', '#3B82F6', '#10B981', '#F59E0B'];
 
   return (
-    <Box sx={{ p: 3 }}>
-      {/* Header */}
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+    <PageWrapper>
+      {/* Live Notifications */}
+      <LiveNotification 
+        notifications={notifications} 
+        onClose={removeNotification} 
+      />
+
+      {/* Header with Real-time Indicator */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2, flexWrap: 'wrap', gap: 2 }}>
         <Box>
-          <Typography variant="h4" fontWeight={700}>Admin Dashboard</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Welcome back, <b>Administrator</b> · {new Date().toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' })}
+          <Typography variant="h4" fontWeight={700} color="text.primary">
+            Real-time Dashboard
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Live data updates every 30 seconds • Welcome back, {user?.name}!
           </Typography>
         </Box>
-        <Tooltip title="Refresh"><IconButton onClick={load} id="dashboard-refresh-btn"><Refresh /></IconButton></Tooltip>
+        <RealTimeIndicator
+          lastUpdate={lastUpdate}
+          isAutoRefreshing={isAutoRefreshing}
+          onRefresh={refresh}
+          onToggleAutoRefresh={toggleAutoRefresh}
+          isLoading={loading}
+          error={error}
+          refreshInterval={30000}
+        />
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
       {/* Stat Cards */}
-      <Grid container spacing={3} mb={3}>
-        {STAT_CARDS.map((card) => (
-          <Grid item xs={12} sm={6} md={3} key={card.key}>
-            <Card
-              id={`stat-card-${card.key}`}
-              sx={{
-                cursor: 'pointer', background: card.bgGrad,
-                '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' },
-                transition: 'all 0.2s ease',
-              }}
-              onClick={() => navigate(card.route)}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        {STAT_CARDS.map((card, idx) => (
+          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={card.key}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
             >
-              <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 2.5 }}>
-                <Box>
-                  <Typography variant="h3" fontWeight={800} color="white">
-                    {loading ? <CircularProgress size={28} sx={{ color: 'white' }} /> : (stats?.stats[card.key] ?? '—')}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.5 }}>{card.label}</Typography>
-                </Box>
-                <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.18)', width: 52, height: 52 }}>
-                  {card.icon}
-                </Avatar>
-              </CardContent>
-            </Card>
+              <StatsCard
+                id={`stat-card-${card.key}`}
+                label={card.label}
+                value={stats?.stats[card.key] ?? '—'}
+                icon={card.icon}
+                color={card.color}
+                loading={loading}
+                onClick={() => navigate(ROUTES[card.key])}
+              />
+            </motion.div>
           </Grid>
         ))}
       </Grid>
 
-      <Grid container spacing={3}>
-        {/* Bar Chart */}
-        <Grid item xs={12} md={5}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" fontWeight={600} mb={2}>Overview</Typography>
-              {loading ? (
-                <Box display="flex" justifyContent="center" py={5}><CircularProgress /></Box>
-              ) : (
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={chartData} barCategoryGap="35%">
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                    <RTooltip />
-                    <Bar dataKey="value" radius={[6,6,0,0]}>
+      {/* Analytics Tabs */}
+      <Box sx={{ mb: 3 }}>
+        <Tabs 
+          value={currentTab} 
+          onChange={(_, newValue) => setCurrentTab(newValue)}
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab icon={<Assessment />} label="Overview" />
+          <Tab icon={<TrendingUp />} label="Departments" />
+          <Tab icon={<Timeline />} label="Performance" />
+          <Tab icon={<ReportProblem />} label="Issues" />
+        </Tabs>
+      </Box>
+
+      {/* Tab Content */}
+      {currentTab === 0 && (
+        <Grid container spacing={3}>
+          {/* Original Overview Chart */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <SectionCard title="Quick Overview" subtitle="Live statistics">
+              <Box sx={{ height: 300, mt: 2 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} barCategoryGap="30%">
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fontSize: 12, fill: '#6B7280' }} 
+                      axisLine={{ stroke: '#E5E7EB' }}
+                      tickLine={false}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12, fill: '#6B7280' }} 
+                      allowDecimals={false}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <RTooltip 
+                      contentStyle={{ 
+                        borderRadius: 8, 
+                        border: '1px solid #E5E7EB',
+                        boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                      }}
+                    />
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                       {chartData.map((_, i) => <Cell key={i} fill={CHART_COLORS[i]} />)}
                     </Bar>
                   </BarChart>
                 </ResponsiveContainer>
+              </Box>
+            </SectionCard>
+          </Grid>
+
+          {/* Attendance Trends */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <AttendanceTrendsChart data={stats?.analytics?.attendanceTrends || []} />
+          </Grid>
+        </Grid>
+      )}
+
+      {currentTab === 1 && (
+        <Grid container spacing={3}>
+          {/* Student Department Distribution */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <DepartmentChart 
+              data={stats?.analytics?.departmentStats || []} 
+              title="Students by Department"
+            />
+          </Grid>
+
+          {/* Staff Department Distribution */}
+          <Grid size={{ xs: 12, md: 6 }}>
+            <DepartmentChart 
+              data={stats?.analytics?.staffDeptStats || []} 
+              title="Staff by Department"
+            />
+          </Grid>
+        </Grid>
+      )}
+
+      {currentTab === 2 && (
+        <Grid container spacing={3}>
+          {/* Marks Distribution */}
+          <Grid size={{ xs: 12, lg: 8 }}>
+            <MarksDistributionChart data={stats?.analytics?.marksDistribution || {}} />
+          </Grid>
+
+          {/* Notes Activity */}
+          <Grid size={{ xs: 12, lg: 4 }}>
+            <SectionCard title="Notes Activity" subtitle="Subject-wise uploads">
+              {stats?.analytics?.notesActivity?.length ? (
+                stats.analytics.notesActivity.map((item, idx) => (
+                  <Box key={item.Subject} sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
+                    <Typography variant="body2">{item.Subject}</Typography>
+                    <Typography variant="body2" fontWeight={600}>{item.count}</Typography>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">No notes activity</Typography>
               )}
-            </CardContent>
-          </Card>
+            </SectionCard>
+          </Grid>
         </Grid>
+      )}
 
-        {/* Recent Events */}
-        <Grid item xs={12} md={3.5}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.5}>
-                <Typography variant="h6" fontWeight={600}>Recent Events</Typography>
-                <Button id="view-all-events-btn" size="small" endIcon={<ArrowForward />}
-                  onClick={() => navigate('/admin/events')}>View All</Button>
-              </Box>
-              <Divider sx={{ mb: 1.5 }} />
-              {loading ? <CircularProgress size={24} /> : stats?.recentEvents?.length ? (
-                <List dense disablePadding>
-                  {stats.recentEvents.map((ev) => (
-                    <ListItem key={ev.EventID} disablePadding sx={{ py: 0.8 }}>
-                      <Avatar sx={{ bgcolor: '#E8EAF6', color: '#1A237E', width: 32, height: 32, mr: 1.5, fontSize: 14 }}>
-                        {ev.EventID}
-                      </Avatar>
-                      <ListItemText
-                        primary={ev.EventsMsg}
-                        primaryTypographyProps={{ fontSize: '0.82rem', noWrap: true }}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              ) : <Typography variant="body2" color="text.secondary">No events found.</Typography>}
-            </CardContent>
-          </Card>
+      {currentTab === 3 && (
+        <Grid container spacing={3}>
+          {/* Complaint Status Chart */}
+          <Grid size={{ xs: 12 }}>
+            <ComplaintStatusChart data={stats?.analytics?.complaintTrends || []} />
+          </Grid>
         </Grid>
-
-        {/* Recent Complaints */}
-        <Grid item xs={12} md={3.5}>
-          <Card sx={{ height: '100%' }}>
-            <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.5}>
-                <Typography variant="h6" fontWeight={600}>Recent Complaints</Typography>
-                <Button id="view-all-complaints-btn" size="small" endIcon={<ArrowForward />}
-                  onClick={() => navigate('/admin/complaints')}>View All</Button>
-              </Box>
-              <Divider sx={{ mb: 1.5 }} />
-              {loading ? <CircularProgress size={24} /> : stats?.recentComplaints?.length ? (
-                <List dense disablePadding>
-                  {stats.recentComplaints.map((c) => (
-                    <ListItem key={c.Complaint_ID} disablePadding sx={{ py: 0.8, flexDirection:'column', alignItems:'flex-start' }}>
-                      <Box display="flex" justifyContent="space-between" width="100%">
-                        <Typography variant="caption" fontWeight={600} color="text.secondary">{c.Type}</Typography>
-                        <Chip label={c.Status} size="small"
-                          color={STATUS_COLOR[c.Status] || 'default'}
-                          sx={{ height: 18, fontSize: '0.65rem' }} />
-                      </Box>
-                      <Typography variant="body2" noWrap sx={{ maxWidth:'100%' }}>{c.Description}</Typography>
-                      <Divider sx={{ width:'100%', mt: 0.8 }} />
-                    </ListItem>
-                  ))}
-                </List>
-              ) : <Typography variant="body2" color="text.secondary">No complaints found.</Typography>}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-    </Box>
+      )}
+    </PageWrapper>
   );
 }

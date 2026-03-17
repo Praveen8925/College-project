@@ -13,6 +13,19 @@ vendor/
 composer.lock
 *.log
 
+# Debug and temporary files
+backend/debug*.php
+backend/test*.php
+backend/check*.php
+backend/inspect*.php
+backend/temp*.php
+*.tmp
+
+# Large files and archives
+*.rar
+*.zip
+*.tar.gz
+
 # IDEs
 .vscode/
 .idea/
@@ -25,3 +38,6 @@ composer.lock
 # OS
 Thumbs.db
 .DS_Store
+
+# Docker volumes and data
+mysql_data/

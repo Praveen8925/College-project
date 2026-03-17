@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: college_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: stc123
+      MYSQL_DATABASE: collegedetails
+      MYSQL_USER: college_user
+      MYSQL_PASSWORD: college_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/collegedetails.sql:/docker-entrypoint-initdb.d/collegedetails.sql:ro
+    ports:
+      - "3308:3306"  # Changed from 3307 to avoid conflicts
+    networks:
+      - college_network
+
+  # PHP Apache Web Server
+  web:
+    build: .
+    container_name: college_web
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_NAME: collegedetails
+      DB_USER: college_user
+      DB_PASS: college_pass
+    volumes:
+      - ./backend:/var/www/html/backend
+      - ./upload:/var/www/html/upload
+      - ./assignment:/var/www/html/assignment
+    ports:
+      - "9090:80"  # Changed from 8080 to 9090 since you use 8080
+    networks:
+      - college_network
+
+  # phpMyAdmin for database management
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: college_phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: college_user
+      PMA_PASSWORD: college_pass
+      MYSQL_ROOT_PASSWORD: stc123
+    ports:
+      - "9091:80"  # Changed from 8081 to 9091
+    networks:
+      - college_network
+
+volumes:
+  mysql_data:
+
+networks:
+  college_network:
+    driver: bridge

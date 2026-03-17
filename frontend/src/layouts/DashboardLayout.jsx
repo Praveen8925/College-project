@@ -5,6 +5,7 @@ import Navbar from '../components/common/Navbar';
 /**
  * Shared layout for all authenticated dashboards.
  * Wraps page content with Sidebar + Navbar.
+ * Responsive: sidebar hidden on mobile, full width content.
  */
 export default function DashboardLayout({ children }) {
   return (
@@ -14,7 +15,8 @@ export default function DashboardLayout({ children }) {
         component="main"
         sx={{
           flexGrow: 1,
-          ml: `${DRAWER_WIDTH}px`,
+          minWidth: 0,
+          ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
           minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
@@ -22,7 +24,7 @@ export default function DashboardLayout({ children }) {
       >
         <Navbar />
         <Toolbar /> {/* Spacer to push content below AppBar */}
-        <Box sx={{ flex: 1, p: 0 }}>
+        <Box sx={{ flex: 1, overflow: 'auto' }}>
           {children}
         </Box>
       </Box>

@@ -3,11 +3,12 @@ import {
   Box, Card, CardContent, Typography, TextField, Select, MenuItem,
   FormControl, InputLabel, Button, Grid, CircularProgress, Alert,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, LinearProgress, Chip, Avatar, Snackbar, IconButton, Tooltip,
+  Paper, Chip, Snackbar, IconButton, Tooltip,
 } from '@mui/material';
-import { Search, Save, Edit, CheckCircle } from '@mui/icons-material';
+import { Search, Save, Edit } from '@mui/icons-material';
 import { getAttendanceStudents } from '../../../api/attendance';
 import { saveAssignment } from '../../../api/assignments';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const SEMS = [1,2,3,4,5,6];
 
@@ -48,19 +49,19 @@ export default function ManageAssignments() {
   };
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>Assignment Marks</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>Assignment Marks</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>Enter assignment marks for a class</Typography>
-      {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
-      <Card sx={{ mb:3 }}>
+      <Card sx={{ mb:3, borderLeft: '4px solid #7C3AED' }}>
         <CardContent>
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField id="asgn-batch" fullWidth label="Batch Year *" type="number" value={batch}
                 onChange={e => setBatch(e.target.value)} placeholder="e.g. 2022" />
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <FormControl fullWidth>
                 <InputLabel>Semester *</InputLabel>
                 <Select value={sem} label="Semester *" id="asgn-sem" onChange={e => setSem(e.target.value)}>
@@ -68,7 +69,7 @@ export default function ManageAssignments() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Button id="asgn-fetch-btn" fullWidth variant="contained" size="large"
                 onClick={handleFetch} disabled={loading}
                 startIcon={loading ? <CircularProgress size={18}/> : <Search />}>
@@ -80,10 +81,10 @@ export default function ManageAssignments() {
       </Card>
 
       {fetched && students.length > 0 && (
-        <TableContainer component={Paper} sx={{ borderRadius:2, boxShadow:'0 2px 12px rgba(0,0,0,0.07)' }}>
+        <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
           <Table size="small">
             <TableHead>
-              <TableRow sx={{ bgcolor:'#F4F6F8' }}>
+              <TableRow sx={{ bgcolor:'#F9FAFB' }}>
                 <TableCell sx={{ fontWeight:700 }}>#</TableCell>
                 <TableCell sx={{ fontWeight:700 }}>Reg. No.</TableCell>
                 <TableCell sx={{ fontWeight:700 }}>Name</TableCell>
@@ -98,7 +99,7 @@ export default function ManageAssignments() {
                   <TableCell>{i+1}</TableCell>
                   <TableCell><b>{s.Regno}</b></TableCell>
                   <TableCell>{s.Name}</TableCell>
-                  <TableCell><Chip label={s.Dept} size="small" variant="outlined" /></TableCell>
+                  <TableCell><Chip label={s.Dept} size="small" sx={{ bgcolor: '#F3F4F6', fontWeight: 500 }} /></TableCell>
                   <TableCell>
                     {editMap[s.Regno] ? (
                       <TextField
@@ -110,7 +111,7 @@ export default function ManageAssignments() {
                         placeholder="0-25"
                       />
                     ) : (
-                      <Typography variant="body2" fontWeight={markMap[s.Regno] ? 700 : 400} color={markMap[s.Regno] ? 'primary' : 'text.secondary'}>
+                      <Typography variant="body2" fontWeight={markMap[s.Regno] ? 700 : 400} color={markMap[s.Regno] ? '#4F46E5' : 'text.secondary'}>
                         {markMap[s.Regno] ? `${markMap[s.Regno]} / 25` : '—'}
                       </Typography>
                     )}
@@ -140,6 +141,6 @@ export default function ManageAssignments() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

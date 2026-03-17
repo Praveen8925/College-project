@@ -7,6 +7,7 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import { Add, Delete, Search, Close } from '@mui/icons-material';
 import { getSubjects, addSubject, deleteSubject } from '../../../api/subjects';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const TYPES = ['Theory','Practical','Elective','Skill-Based'];
 const SEMS  = [1,2,3,4,5,6];
@@ -73,10 +74,10 @@ export default function SubjectList() {
   ];
 
   return (
-    <Box sx={{ p:3 }}>
+    <PageWrapper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box>
-          <Typography variant="h5" fontWeight={700}>Subject Management</Typography>
+          <Typography variant="h4" fontWeight={700}>Subject Management</Typography>
           <Typography variant="body2" color="text.secondary">{rows.length} subject(s)</Typography>
         </Box>
         <Button id="add-subject-btn" variant="contained" startIcon={<Add />} onClick={()=>setDialog({ open:true, data:EMPTY })}>Add Subject</Button>
@@ -99,11 +100,11 @@ export default function SubjectList() {
         </FormControl>
       </Box>
 
-      <Box sx={{ borderRadius:2, overflow:'hidden', boxShadow:'0 2px 12px rgba(0,0,0,0.07)' }}>
+      <Box sx={{ borderRadius:2, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.08)' }}>
         <DataGrid rows={rows} columns={columns} loading={loading} pageSizeOptions={[10,25,50]}
           initialState={{ pagination:{ paginationModel:{ pageSize:10 } } }}
           disableRowSelectionOnClick autoHeight
-          sx={{ bgcolor:'white', border:'none','& .MuiDataGrid-columnHeaders':{ bgcolor:'#F4F6F8', fontWeight:700 } }} />
+          sx={{ bgcolor:'white', border:'none','& .MuiDataGrid-columnHeaders':{ bgcolor:'#F9FAFB', fontWeight:700 } }} />
       </Box>
 
       <Dialog open={dialog.open} onClose={()=>setDialog(d=>({...d,open:false}))} maxWidth="sm" fullWidth>
@@ -111,27 +112,27 @@ export default function SubjectList() {
           Add New Subject <IconButton onClick={()=>setDialog(d=>({...d,open:false}))}><Close /></IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          {error && <Alert severity="error" sx={{mb:2}}>{error}</Alert>}
+          {error && <Alert severity="error" sx={{mb:2, borderRadius: 2}}>{error}</Alert>}
           <Grid container spacing={2}>
-            <Grid item xs={6}><TextField id="sub-code" fullWidth label="Subject Code *" value={dialog.data.SubjectCode} onChange={set('SubjectCode')} /></Grid>
-            <Grid item xs={6}><TextField id="sub-name" fullWidth label="Subject Name *" value={dialog.data.SubjectName} onChange={set('SubjectName')} /></Grid>
-            <Grid item xs={6}><TextField id="sub-dept" fullWidth label="Department *" value={dialog.data.Department} onChange={set('Department')} /></Grid>
-            <Grid item xs={3}><TextField id="sub-batch" fullWidth label="Batch" type="number" value={dialog.data.Batch} onChange={set('Batch')} /></Grid>
-            <Grid item xs={3}>
+            <Grid size={{ xs: 6 }}><TextField id="sub-code" fullWidth label="Subject Code *" value={dialog.data.SubjectCode} onChange={set('SubjectCode')} /></Grid>
+            <Grid size={{ xs: 6 }}><TextField id="sub-name" fullWidth label="Subject Name *" value={dialog.data.SubjectName} onChange={set('SubjectName')} /></Grid>
+            <Grid size={{ xs: 6 }}><TextField id="sub-dept" fullWidth label="Department *" value={dialog.data.Department} onChange={set('Department')} /></Grid>
+            <Grid size={{ xs: 3 }}><TextField id="sub-batch" fullWidth label="Batch" type="number" value={dialog.data.Batch} onChange={set('Batch')} /></Grid>
+            <Grid size={{ xs: 3 }}>
               <FormControl fullWidth><InputLabel>Sem *</InputLabel>
                 <Select value={dialog.data.sem} label="Sem *" id="sub-sem" onChange={set('sem')}>
                   {SEMS.map(s=><MenuItem key={s} value={s}>{s}</MenuItem>)}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <FormControl fullWidth><InputLabel>Type</InputLabel>
                 <Select value={dialog.data.Type} label="Type" id="sub-type" onChange={set('Type')}>
                   {TYPES.map(t=><MenuItem key={t} value={t}>{t}</MenuItem>)}
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}><TextField id="sub-hours" fullWidth label="Hours/Week" type="number" value={dialog.data.NoOfHours} onChange={set('NoOfHours')} /></Grid>
+            <Grid size={{ xs: 6 }}><TextField id="sub-hours" fullWidth label="Hours/Week" type="number" value={dialog.data.NoOfHours} onChange={set('NoOfHours')} /></Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px:3, py:2 }}>
@@ -154,6 +155,6 @@ export default function SubjectList() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={()=>setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{width:'100%'}}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

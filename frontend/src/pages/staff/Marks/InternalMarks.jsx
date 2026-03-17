@@ -3,10 +3,11 @@ import {
   Box, Card, CardContent, Typography, TextField, Select, MenuItem,
   FormControl, InputLabel, Button, Grid, CircularProgress, Alert,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Chip, Snackbar, ToggleButton, ToggleButtonGroup, IconButton, Tooltip,
+  Paper, Chip, Snackbar, ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
 import { Search, Save } from '@mui/icons-material';
 import { getInternalMarks, saveInternalMark } from '../../../api/marks';
+import PageWrapper from '../../../components/common/PageWrapper';
 
 const SEMS      = [1,2,3,4,5,6];
 const TEST_TYPES = ['CT1','CT2','Model'];
@@ -59,19 +60,19 @@ export default function InternalMarks() {
   const maxM = MAX_MARK[testType] || 50;
 
   return (
-    <Box sx={{ p:3 }}>
-      <Typography variant="h5" fontWeight={700} mb={0.5}>Internal Marks</Typography>
+    <PageWrapper>
+      <Typography variant="h4" fontWeight={700} mb={0.5}>Internal Marks</Typography>
       <Typography variant="body2" color="text.secondary" mb={3}>Enter CT1, CT2 and Model Exam marks for students</Typography>
-      {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
 
-      <Card sx={{ mb:3 }}>
+      <Card sx={{ mb:3, borderLeft: '4px solid #059669' }}>
         <CardContent>
           <Grid container spacing={2} alignItems="flex-end">
-            <Grid item xs={12} sm={2.5}>
+            <Grid size={{ xs: 12, sm: 2.5 }}>
               <TextField id="marks-batch" fullWidth label="Batch Year *" type="number" value={batch}
                 onChange={e => setBatch(e.target.value)} placeholder="e.g. 2022" />
             </Grid>
-            <Grid item xs={12} sm={2.5}>
+            <Grid size={{ xs: 12, sm: 2.5 }}>
               <FormControl fullWidth>
                 <InputLabel>Semester *</InputLabel>
                 <Select value={sem} label="Semester *" id="marks-sem" onChange={e => setSem(e.target.value)}>
@@ -79,17 +80,20 @@ export default function InternalMarks() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <Typography variant="caption" color="text.secondary" display="block" mb={0.5}>Test Type</Typography>
               <ToggleButtonGroup value={testType} exclusive onChange={(_, v) => { if(v) setTestType(v); }} size="small" fullWidth>
                 {TEST_TYPES.map(t => (
-                  <ToggleButton key={t} value={t} id={`test-type-${t}`} sx={{ fontWeight:600 }}>
+                  <ToggleButton key={t} value={t} id={`test-type-${t}`} sx={{ 
+                    fontWeight:600,
+                    '&.Mui-selected': { bgcolor: '#EEF2FF', color: '#4F46E5', borderColor: '#4F46E5' }
+                  }}>
                     {t} ({MAX_MARK[t]})
                   </ToggleButton>
                 ))}
               </ToggleButtonGroup>
             </Grid>
-            <Grid item xs={12} sm={3}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <Button id="marks-fetch-btn" fullWidth variant="contained" size="large"
                 onClick={load} disabled={loading}
                 startIcon={loading ? <CircularProgress size={18}/> : <Search />}>
@@ -103,13 +107,13 @@ export default function InternalMarks() {
       {fetched && rows.length > 0 && (
         <>
           <Box display="flex" alignItems="center" gap={2} mb={2}>
-            <Chip label={`${testType} — Max: ${maxM}`} color="primary" />
+            <Chip label={`${testType} — Max: ${maxM}`} sx={{ bgcolor: '#EEF2FF', color: '#4F46E5', fontWeight: 600 }} />
             <Chip label={`${rows.length} students`} variant="outlined" />
           </Box>
-          <TableContainer component={Paper} sx={{ borderRadius:2, boxShadow:'0 2px 12px rgba(0,0,0,0.07)' }}>
+          <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
             <Table size="small">
               <TableHead>
-                <TableRow sx={{ bgcolor:'#F4F6F8' }}>
+                <TableRow sx={{ bgcolor:'#F9FAFB' }}>
                   <TableCell sx={{ fontWeight:700 }}>#</TableCell>
                   <TableCell sx={{ fontWeight:700 }}>Reg. No.</TableCell>
                   <TableCell sx={{ fontWeight:700 }}>Name</TableCell>
@@ -140,8 +144,11 @@ export default function InternalMarks() {
                       </TableCell>
                       <TableCell>
                         {!isNaN(m) && markMap[s.Regno] !== '' && (
-                          <Chip label={`${pct}%`} size="small"
-                            color={pct >= 40 ? 'success' : 'error'} variant="outlined" />
+                          <Chip label={`${pct}%`} size="small" sx={{ 
+                            bgcolor: pct >= 40 ? '#ECFDF5' : '#FEF2F2',
+                            color: pct >= 40 ? '#059669' : '#DC2626',
+                            fontWeight: 600
+                          }} />
                         )}
                       </TableCell>
                       <TableCell>
@@ -170,6 +177,6 @@ export default function InternalMarks() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

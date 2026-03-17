@@ -22,7 +22,7 @@ try {
     // Build download URL for each note
     $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on' ? 'https' : 'http') .
                '://' . $_SERVER['HTTP_HOST'] .
-               '/camu dupli/backend/uploads/notes/';
+               '/College-project/backend/uploads/notes/';
 
     foreach ($notes as &$n) {
         $n['downloadUrl'] = $n['FileName'] ? $baseUrl . rawurlencode($n['FileName']) : null;

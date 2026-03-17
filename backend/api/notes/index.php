@@ -16,7 +16,7 @@ if ($method === 'GET') {
     if ($sid)   { $sql .= ' AND SID=?';   $params[] = $sid;   }
     if ($batch) { $sql .= ' AND Batch=?'; $params[] = $batch; }
     if ($sem)   { $sql .= ' AND sem=?';   $params[] = $sem;   }
-    $sql .= ' ORDER BY NID DESC';
+    $sql .= ' ORDER BY Batch DESC, sem DESC, subject ASC'; // Fixed: removed non-existent NID column
 
     try {
         $stmt = $db->prepare($sql);

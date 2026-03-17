@@ -8,6 +8,8 @@ import {
 import { Add, Close, ReportProblem } from '@mui/icons-material';
 import { getStudentComplaints, submitComplaint } from '../../../api/student';
 import { useAuth } from '../../../context/AuthContext';
+import PageWrapper from '../../../components/common/PageWrapper';
+import StatusBadge from '../../../components/common/StatusBadge';
 
 const TYPES      = ['Academic','Hostel','Transport','Library','Lab','Canteen','Staff','Other'];
 const COMPLAINT_TO = ['HOD','Principal','Admin','Class Advisor'];
@@ -59,10 +61,10 @@ export default function MyComplaints() {
   const resolved = complaints.filter(c => c.Status === 'Resolved').length;
 
   return (
-    <Box sx={{ p:3 }}>
+    <PageWrapper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box>
-          <Typography variant="h5" fontWeight={700}>My Complaints</Typography>
+          <Typography variant="h4" fontWeight={700}>My Complaints</Typography>
           <Typography variant="body2" color="text.secondary">
             Batch {user?.batch} · {user?.dept}
           </Typography>
@@ -76,15 +78,15 @@ export default function MyComplaints() {
       {/* Stats Row */}
       <Grid container spacing={2} mb={3}>
         {[
-          { label:'Total',    value: complaints.length, color:'#1A237E' },
-          { label:'Pending',  value: pending,           color:'#E65100' },
-          { label:'Resolved', value: resolved,          color:'#2E7D32' },
-        ].map(s => (
-          <Grid item xs={4} key={s.label}>
-            <Card sx={{ textAlign:'center' }}>
+          { label:'Total',    value: complaints.length, color:'#4F46E5' },
+          { label:'Pending',  value: pending,           color:'#EA580C' },
+          { label:'Resolved', value: resolved,          color:'#059669' },
+        ].map(stat => (
+          <Grid size={{ xs: 4 }} key={stat.label}>
+            <Card sx={{ textAlign:'center', borderTop: `3px solid ${stat.color}` }}>
               <CardContent sx={{ py:'14px !important' }}>
-                <Typography variant="h3" fontWeight={800} color={s.color}>{loading ? '…' : s.value}</Typography>
-                <Typography variant="body2" color="text.secondary">{s.label}</Typography>
+                <Typography variant="h3" fontWeight={700} color={stat.color}>{loading ? '…' : stat.value}</Typography>
+                <Typography variant="body2" color="text.secondary">{stat.label}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -96,7 +98,7 @@ export default function MyComplaints() {
         <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>
       ) : complaints.length === 0 ? (
         <Box py={8} textAlign="center">
-          <ReportProblem sx={{ fontSize:56, color:'#ccc', mb:2 }} />
+          <ReportProblem sx={{ fontSize:56, color:'#D1D5DB', mb:2 }} />
           <Typography color="text.secondary">No complaints submitted yet.</Typography>
           <Button variant="contained" sx={{ mt:2 }} onClick={() => setAddOpen(true)}>Submit Your First Complaint</Button>
         </Box>
@@ -111,16 +113,15 @@ export default function MyComplaints() {
                       <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                         <Box display="flex" gap={1} flexWrap="wrap" alignItems="center">
                           <Typography variant="body2" fontWeight={700} color="text.secondary">{c.Complaint_ID}</Typography>
-                          <Chip label={c.Type} size="small" variant="outlined" />
-                          {c.Complaint_To && <Chip label={`To: ${c.Complaint_To}`} size="small" sx={{ bgcolor:'#E8EAF6' }} />}
+                          <Chip label={c.Type} size="small" sx={{ bgcolor: '#F3F4F6', fontWeight: 500 }} />
+                          {c.Complaint_To && <Chip label={`To: ${c.Complaint_To}`} size="small" sx={{ bgcolor:'#EEF2FF', color: '#4F46E5' }} />}
                         </Box>
-                        <Chip label={c.Status} size="small"
-                          color={STATUS_COLOR[c.Status] || 'default'} />
+                        <StatusBadge status={c.Status} />
                       </Box>
                       <Typography variant="body1" mt={0.8} fontWeight={500}>{c.Description}</Typography>
                       {c.Status === 'Resolved' && c.solved_description && (
-                        <Box mt={1} p={1} sx={{ bgcolor:'#E8F5E9', borderRadius:1 }}>
-                          <Typography variant="caption" color="success.main">
+                        <Box mt={1} p={1} sx={{ bgcolor:'#ECFDF5', borderRadius:2 }}>
+                          <Typography variant="caption" color="#059669">
                             <b>Resolution:</b> {c.solved_description}
                           </Typography>
                         </Box>
@@ -146,9 +147,9 @@ export default function MyComplaints() {
           <IconButton onClick={() => setAddOpen(false)}><Close /></IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          {error && <Alert severity="error" sx={{ mb:2 }}>{error}</Alert>}
+          {error && <Alert severity="error" sx={{ mb:2, borderRadius: 2 }}>{error}</Alert>}
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Complaint Type *</InputLabel>
                 <Select value={form.Type} label="Complaint Type *" id="cmp-type" onChange={set('Type')}>
@@ -156,7 +157,7 @@ export default function MyComplaints() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Complaint To</InputLabel>
                 <Select value={form.Complaint_To} label="Complaint To" id="cmp-to" onChange={set('Complaint_To')}>
@@ -164,15 +165,15 @@ export default function MyComplaints() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <TextField id="cmp-date" fullWidth label="Date" type="date" InputLabelProps={{ shrink:true }}
                 value={form.Date} onChange={set('Date')} />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <TextField id="cmp-class" fullWidth label="Class / Section" value={form.class_no}
                 onChange={set('class_no')} placeholder="e.g. III B.Sc IT A" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <TextField id="cmp-desc" fullWidth label="Description *" multiline rows={4}
                 value={form.Description} onChange={set('Description')}
                 placeholder="Describe your complaint in detail…" />
@@ -191,6 +192,6 @@ export default function MyComplaints() {
       <Snackbar open={snack.open} autoHideDuration={4000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

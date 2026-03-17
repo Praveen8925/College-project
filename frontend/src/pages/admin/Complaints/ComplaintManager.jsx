@@ -7,8 +7,8 @@ import {
 import { DataGrid } from '@mui/x-data-grid';
 import { CheckCircle, FilterList, Refresh } from '@mui/icons-material';
 import { getComplaints, resolveComplaint } from '../../../api/complaints';
-
-const STATUS_COLOR = { Pending:'warning', Resolved:'success' };
+import PageWrapper from '../../../components/common/PageWrapper';
+import StatusBadge from '../../../components/common/StatusBadge';
 
 export default function ComplaintManager() {
   const [rows,    setRows]    = useState([]);
@@ -48,7 +48,7 @@ export default function ComplaintManager() {
     { field:'Complaint_To',headerName:'Raised To',     width:160 },
     {
       field:'Status', headerName:'Status', width:110,
-      renderCell: p => <Chip label={p.value} size="small" color={STATUS_COLOR[p.value]||'default'} />
+      renderCell: p => <StatusBadge status={p.value} />
     },
     {
       field:'actions', headerName:'Action', width:110, sortable:false,
@@ -64,10 +64,10 @@ export default function ComplaintManager() {
   ];
 
   return (
-    <Box sx={{ p: 3 }}>
+    <PageWrapper>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box>
-          <Typography variant="h5" fontWeight={700}>Complaints Manager</Typography>
+          <Typography variant="h4" fontWeight={700}>Complaints Manager</Typography>
           <Typography variant="body2" color="text.secondary">{rows.length} complaint(s) found</Typography>
         </Box>
         <Box display="flex" gap={1}>
@@ -83,12 +83,12 @@ export default function ComplaintManager() {
         </Box>
       </Box>
 
-      <Box sx={{ borderRadius:2, overflow:'hidden', boxShadow:'0 2px 12px rgba(0,0,0,0.07)' }}>
+      <Box sx={{ borderRadius:2, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.08)' }}>
         <DataGrid
           rows={rows} columns={columns} loading={loading}
           pageSizeOptions={[10,25,50]} initialState={{ pagination:{ paginationModel:{ pageSize:10 } } }}
           disableRowSelectionOnClick autoHeight
-          sx={{ bgcolor:'white', border:'none', '& .MuiDataGrid-columnHeaders':{ bgcolor:'#F4F6F8', fontWeight:700 } }}
+          sx={{ bgcolor:'white', border:'none', '& .MuiDataGrid-columnHeaders':{ bgcolor:'#F9FAFB', fontWeight:700 } }}
         />
       </Box>
 
@@ -111,6 +111,6 @@ export default function ComplaintManager() {
       <Snackbar open={snack.open} autoHideDuration={3000} onClose={() => setSnack(s=>({...s,open:false}))}>
         <Alert severity={snack.sev} sx={{ width:'100%' }}>{snack.msg}</Alert>
       </Snackbar>
-    </Box>
+    </PageWrapper>
   );
 }

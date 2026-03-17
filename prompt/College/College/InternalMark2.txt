@@ -1,0 +1,201 @@
+<?php
+session_start();
+include_once 'database.php';
+?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="css/Web.css">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<script src="JS/Index.js"></script>
+<script src="JS/datetimepicker_css.js"></script>
+</head>
+<body>
+<div class="allblur">
+   <table width="100%" border="0" class="font-stylec">
+   <tr>
+     <td colspan="2" align="Center"><h1>Internal Mark</h1>
+   </tr>
+  <form name="" method="post" action="" >
+   <tr>
+       <td>Batch</td>
+        <td><select name="batch" id="batch">
+<?php
+         $y= date("Y");
+         echo "<option value=".$y.">".$y."</option>";
+            for ($x=2000; $x<=$y; $x++)
+                  { 
+  	echo "<option value=".$x.">".$x."</option>";
+                  }
+?>
+        </select></td>
+  </tr>
+  <tr>
+      <td>Department</td>
+      <td> <select name="dept" id="dept">
+<?php
+           $rs=mysql_query("select * from coursedetails");
+              while($row=mysql_fetch_row($rs))
+                  {
+	print "<option values=$row[0]>$row[0]</option>";
+                   }   
+?>
+            </select> </td>
+  </tr>
+  <tr>
+      <td>Sem</td>
+      <td><select name="sem" id="sem">
+<?php
+             for ($x=1; $x<=10; $x++)
+                {
+              echo "<option value=".$x.">".$x."</option>";
+                 }
+?>
+          </select>  
+     </td>
+ </tr>
+<tr>
+      <td>Course ID</td>
+      <td><select name="cid" id="cid">
+<?php
+             $SQL= "select * from subjectdetails where Batch='$batch' and sem='$sem' and Programme_Name='$dept' order by CourseID asc" ;
+             $rs=mysql_query($SQL);
+              while($row=mysql_fetch_assoc($rs))
+    	        {
+                              echo "<option value=".$row["CourseID"].">".$row["CourseID"]."</option>";
+      	           }
+?>
+          </select>  
+     </td>
+ </tr>
+
+ <tr>
+     <td colspan="2">
+                <center>
+                        <input type="Submit" Value="Submit" id="submit" class="bn">
+               </center>
+    </td>
+  </tr>
+</form>
+</table>
+  </td>
+  </tr>
+<?php
+          if ($_POST) 
+                 { 
+	      $batch=$_POST['batch'];
+                       $dept=$_POST['dept']; 
+                       $sem=$_POST['sem'];
+                       $cid=$_POST['cid']; 
+                       $SQL= "select * from subjectdetails where Batch='$batch' and sem='$sem' and Programme_Name='$dept' order by CourseID asc" ;
+                       $rs=mysql_query($SQL);  
+                       $cnt=mysql_num_rows($rs);
+                    if (mysql_num_rows($rs)==0)
+                      {
+                       print "<h1>No Data Found</h1>";
+                       }
+                    else
+                     {
+                     
+?>
+  <tr>
+     <td><center>
+     <table width="80%" border="1">
+  <tr>
+<th>
+   SI.No
+</th>
+<th>
+   Reg No
+</th>
+<th>
+  Name
+</th>
+<th>
+  Cycle Test I
+</th>
+<th>
+Cycle Test I
+</th>
+<th>
+  Cycle Test II
+</th>
+<th>
+ Model Exam
+</th>
+<th>
+  Total
+</th>
+<?php
+                   $i=1;
+    	          while($row=mysql_fetch_assoc($rs))
+    	             {
+                                print $cid.$row["CourseID"];
+                                $cid2=$row["CourseID"];
+                                 print $cid2."<br>";
+                              if($cid=$cid2)
+                                {
+                               $c=$i;
+                                print $c;
+                                break;
+                                }$i=$i+1;
+    	              }
+?>
+</tr>
+<tr>
+<?php
+                
+                $SQL= "select * from student where Batch='$batch' and  Department='$dept'" ;
+                $rs=mysql_query($SQL);  
+                            if (mysql_num_rows($rs)==0)
+                                 {
+                                 print "<h1>No data found</h1></a>";
+                                 }
+                            else
+                                {
+                                $i=1;
+    	               while($row=mysql_fetch_assoc($rs))
+    	                 {
+                                   $reg=$row["RegNo"];
+	                  print "<td>$i</td><td>".$row["RegNo"]."";?><input type="hidden" name="regno[]" id="regno[]"  value="<?php print $row["RegNo"]; ?>"  size="30"><?php  print "</td><td>".$row["Name"]."</td>"; 
+                                   $SQL="SELECT * FROM mark WHERE Batch='$batch' and RegNo='$reg' and sem='$sem' and exam_type='cycletest1'";
+                                   $rm=mysql_query($SQL);
+                                             while($row=mysql_fetch_assoc($rm))
+                                                  {   
+                                                  $mark=$row["mark1"];
+                                                    }    
+                                                $mar = explode("-",$mark);
+                                                 print "<td>".$mar[0]."</td>";
+                                                              $m1=$mar[0];
+                                                               $m1=($m1*2.5)/50;
+                                                 print "<td>".$m1."</td>";
+                                  $SQL="SELECT * FROM mark WHERE Batch='$batch' and RegNo='$reg' and sem='$sem' and exam_type='cycletest2'";
+                                   $rm=mysql_query($SQL);
+                                             while($row=mysql_fetch_assoc($rm))
+                                                  {   
+                                                  $mark=$row["mark1"];
+                                                    }    
+                                                $mar = explode("-",$mark);
+                                                 print "<td>".$mar[0]."</td>";
+                                     $SQL="SELECT * FROM mark WHERE Batch='$batch' and RegNo='$reg' and sem='$sem' and exam_type='modelexam'";
+                                   $rm=mysql_query($SQL);
+                                             while($row=mysql_fetch_assoc($rm))
+                                                  {   
+                                                  $mark=$row["mark1"];
+                                                    }    
+                                                $mar = explode("-",$mark);
+                                                 print "<td>".$mar[0]."</td>";
+                       print "</tr>";
+                       $i++;
+                                         }  
+                                     }
+?>
+</table>
+<?php
+                       }
+            }
+?>
+</form>
+</div>
+</body>
+</html>
